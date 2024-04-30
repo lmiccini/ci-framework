@@ -86,6 +86,7 @@ cifmw_devscripts_config_overrides:
   worker_disk: 100
   worker_vcpu: 10
   num_extra_workers: 3
+  num_workers: 3
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
 # Note: with that extra_network_names "osp_trunk", we instruct
