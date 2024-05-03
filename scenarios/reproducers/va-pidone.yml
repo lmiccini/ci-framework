@@ -92,7 +92,7 @@ cifmw_devscripts_config_overrides:
   num_workers: 3
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
-  cluster_subnet_v4: "192.168.16.0/16"
+  cluster_subnet_v4: "192.168.32.0/19"
 
 # Note: with that extra_network_names "osp_trunk", we instruct
 # devscripts role to create a new network, and associate it to
