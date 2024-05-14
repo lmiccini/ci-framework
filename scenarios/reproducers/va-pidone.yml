@@ -52,7 +52,7 @@ cifmw_libvirt_manager_configuration:
       nets:
         - osp_trunk
     ocp_worker:
-      amount: 3
+      amount: 4
       admin_user: core
       image_local_dir: "/home/dev-scripts/pool"
       disk_file_name: "ocp_worker"
@@ -98,7 +98,7 @@ cifmw_devscripts_config_overrides:
   worker_disk: 100
   worker_vcpu: 10
   num_extra_workers: 3
-  num_workers: 3
+  num_workers: 4
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
   # this needs to be overridden otherwise there won't be enough
