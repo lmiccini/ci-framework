@@ -106,6 +106,8 @@ cifmw_devscripts_config_overrides:
   # subnets to assign to all the masters and workers
   cluster_subnet_v4: "192.168.32.0/19"
 
+  OPENSHIFT_RELEASE_IMAGE: "quay.io/openshift-release-dev/ocp-release@sha256:d93db95ec59b2f51ff45fdecd54b4dd9144521e3d099fef151c189598200cf24"
+
 # Note: with that extra_network_names "osp_trunk", we instruct
 # devscripts role to create a new network, and associate it to
 # the OCP nodes. This one is a "private network", and will hold
@@ -128,3 +130,4 @@ cifmw_test_operator_tolerations:
     effect: "NoExecute"
 cifmw_test_operator_node_selector:
   kubernetes.io/hostname: worker-3
+
