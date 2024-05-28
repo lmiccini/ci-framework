@@ -4,8 +4,7 @@ cifmw_arch_automation_file: pidone.yaml
 
 cifmw_fips_enabled: true
 
-#cifmw_ci_setup_openshift_client_download_uri: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/
-cifmw_ci_setup_openshift_client_version: "4.16.0-rc.2"
+#cifmw_ci_setup_openshift_client_version: "4.16.0-rc.2"
 
 # Automation section. Most of those parameters will be passed to the
 # controller-0 as-is and be consumed by the `deploy-va.sh` script.
@@ -113,8 +112,8 @@ cifmw_devscripts_config_overrides:
   # subnets to assign to all the masters and workers
   cluster_subnet_v4: "192.168.32.0/19"
 
-  OPENSHIFT_RELEASE_IMAGE: "quay.io/openshift-release-dev/ocp-release@sha256:d93db95ec59b2f51ff45fdecd54b4dd9144521e3d099fef151c189598200cf24"
-  openshift_version: "4.16.0-rc.2"
+  #OPENSHIFT_RELEASE_IMAGE: "quay.io/openshift-release-dev/ocp-release@sha256:d93db95ec59b2f51ff45fdecd54b4dd9144521e3d099fef151c189598200cf24"
+  #openshift_version: "4.16.0-rc.2"
   FIPS_VALIDATE: True
   OPENSHIFT_INSTALLER_CMD: "openshift-install-fips"
 
