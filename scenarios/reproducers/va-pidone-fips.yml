@@ -115,6 +115,7 @@ cifmw_devscripts_config_overrides:
 
   OPENSHIFT_RELEASE_IMAGE: "quay.io/openshift-release-dev/ocp-release@sha256:d93db95ec59b2f51ff45fdecd54b4dd9144521e3d099fef151c189598200cf24"
   openshift_version: "4.16.0-rc.2"
+  FIPS_VALIDATE: True
 
 # Note: with that extra_network_names "osp_trunk", we instruct
 # devscripts role to create a new network, and associate it to
