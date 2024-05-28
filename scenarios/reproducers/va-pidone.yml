@@ -1,5 +1,6 @@
 ---
 cifmw_architecture_scenario: pidone
+cifmw_arch_automation_file: pidone.yaml
 
 # Automation section. Most of those parameters will be passed to the
 # controller-0 as-is and be consumed by the `deploy-va.sh` script.
