@@ -5,7 +5,7 @@ cifmw_arch_automation_file: pidone.yaml
 cifmw_fips_enabled: true
 
 #cifmw_ci_setup_openshift_client_download_uri: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/
-cifmw_ci_setup_openshift_client_version: "4.15.9"
+cifmw_ci_setup_openshift_client_version: "4.16.0-rc.2"
 
 # Automation section. Most of those parameters will be passed to the
 # controller-0 as-is and be consumed by the `deploy-va.sh` script.
