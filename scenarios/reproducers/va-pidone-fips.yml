@@ -4,6 +4,7 @@ cifmw_arch_automation_file: pidone.yaml
 
 cifmw_fips_enabled: true
 cifmw_repo_setup_rhos_release_args: "ceph-7.0-rhel-9 -r 9.4 --enable-repo rhosp-rhel-9.4-nightly-baseos,rhosp-rhel-9.4-nightly-appstream,rhosp-rhel-9.4-nightly-ha,rhosp-rhel-9.4-fdp-nightly --disable-repo rhosp-rhel-9.4-baseos,rhosp-rhel-9.4-appstream,rhosp-rhel-9.4-ha,rhosp-rhel-9.4-fdp-cdn"
+cifmw_ci_gen_kustomize_values_ooi_image: "images.paas.redhat.com/podified-beta-rhos-18-rhel-9/openstack-operator-index:latest"
 
 #cifmw_ci_setup_openshift_client_version: "4.16.0-rc.2"
 #cifmw_ci_setup_openshift_client_version: "4.15.15"
