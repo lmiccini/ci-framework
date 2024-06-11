@@ -24,7 +24,7 @@
   cifmw.general.ci_script:
     output_dir: "{{ cifmw_validations_basedir }}/artifacts"
     script: >-
-      oc patch -n {{ cifmw_validations_namespace }} osdpns/"{{ deployed_nodeset_name.stdout }}" --type=merge -p '{"spec": {"nodeTemplate": {"ansible": {"ansibleVars": {"edpm_nova_compute_image": "{{ cifmw_validations_hotfixed_edpm_nova_compute_image }}"}}}}}'
+      oc patch -n {{ cifmw_validations_namespace }} osdpns/"{{ deployed_nodeset_name.stdout | trim }}" --type=merge -p '{"spec": {"nodeTemplate": {"ansible": {"ansibleVars": {"edpm_nova_compute_image": "{{ cifmw_validations_hotfixed_edpm_nova_compute_image }}"}}}}}'
 
 # Create a new OpenStackDataPlaneDeployment to apply the hotfixed image
 - name: Create openstackdataplanedeployment to rollout changes
@@ -42,9 +42,9 @@
         namespace: {{ cifmw_validations_namespace }}
       spec:
         nodeSets:
-          - "{{ deployed_nodeset_name.stdout }}"
+          - "{{ deployed_nodeset_name.stdout | trim }}"
         servicesOverride:
-          - nova
+          - "{{ cifmw_validations_custom_nova_service }}"
       EOF
 
 # loop check the status of the openstackdataplanedeployment until it is either completed,
@@ -65,8 +65,7 @@
 - name: Collect the image currently used by nova_compute on the edpm node
   ansible.builtin.shell:
     cmd: >-
-      set -o pipefail && podman inspect nova_compute | jq '.[].ImageName' | tr -d '"'
-  become: true
+      set -o pipefail && sudo podman inspect nova_compute | jq '.[].ImageName' | tr -d '"'
   delegate_to: "{{ cifmw_validations_edpm_check_node }}"
   register: post_change_nova_compute_image
 

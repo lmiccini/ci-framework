@@ -135,6 +135,14 @@
       tags:
         - edpm_bootstrap
 
+    - name: Configure Storage Class
+      ansible.builtin.import_role:
+        name: ci_local_storage
+      when: not cifmw_use_lvms | default(false)
+      tags:
+        - storage
+        - edpm_bootstrap
+
     - name: Deploy OSP operators
       ansible.builtin.import_role:
         name: kustomize_deploy
@@ -143,12 +151,13 @@
         - operator
         - edpm_bootstrap
 
-    - name: Configure Storage Class
-      ansible.builtin.import_role:
-        name: ci_local_storage
-      when: not cifmw_use_lvms | default(false)
+    - name: Update containers in deployed OSP operators
+      vars:
+        cifmw_update_containers_metadata: controlplane
+      ansible.builtin.include_role:
+        name: update_containers
       tags:
-        - storage
+        - update_containers
         - edpm_bootstrap
 
     - name: Configure LVMS Storage Class

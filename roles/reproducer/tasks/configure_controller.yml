@@ -167,7 +167,7 @@
 
     - name: Inject ProxyJump configuration for remote hypervisor VMs
       when:
-        - hostvars[host]['ansible_host'] is defined
+        - hostvars[host]['host_ip'] is defined
       vars:
         _vm_type: "{{ host | regex_replace('\\-[0-9]*', '') }}"
         _vm_data: "{{ _cifmw_libvirt_manager_layout.vms[_vm_type] }}"
@@ -189,8 +189,8 @@
         path: "/home/zuul/.ssh/config"
         marker: "## {mark} {{ host }}"
         block: |-
-          Host {{ host }} {{ _vm_ip }}
-            Hostname {{ _vm_ip }}
+          Host {{ host }} {{ _vm_ip }} {{ hostvars[host]['host_ip'] }}
+            Hostname {{ hostvars[host]['host_ip'] }}
             User {{ _vm_data['admin_user'] | default('zuul') }}
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
@@ -279,6 +279,14 @@
             name: manage_secrets
             tasks_from: reproducer.yml
 
+    - name: Inject FQDN in /etc/hosts
+      become: true
+      ansible.builtin.blockinfile:
+        dest: /etc/hosts
+        block: |-
+         127.0.0.2 {{ hostvars['controller-0'].ansible_host }}
+         ::2 {{ hostvars['controller-0'].ansible_host }}
+
     - name: Ensure packages are installed
       become: true
       block:
@@ -321,7 +329,7 @@
       ansible.builtin.import_tasks: generate_bm_info.yml
 
     - name: Verify connection to baremetal VMs via Sushy Emulator
-      when: _sushy_emulator_available
+      when: _sushy_emulator_available | default(false)
       ansible.builtin.include_role:
         name: sushy_emulator
         tasks_from: verify.yml
@@ -347,7 +355,7 @@
             rejectattr('key', 'equalto', 'cifmw_openshift_kubeconfig') |
             rejectattr('key', 'equalto', 'cifmw_openshift_token') |
             rejectattr('key', 'equalto', 'cifmw_set_openstack_containers_registry') |
-            rejectattr('key', 'match', '^cifmw_use.*') |
+            rejectattr('key', 'match', '^cifmw_use_(?!lvms).*') |
             rejectattr('key', 'match', '^cifmw_reproducer.*') |
             rejectattr('key', 'match', '^cifmw_rhol.*') |
             rejectattr('key', 'match', '^cifmw_discover.*') |
@@ -379,9 +387,8 @@
           cifmw_architecture_automation_file: >-
             {{
               (
-                ansible_user_dir,
-                'src/github.com/openstack-k8s-operators',
-                'architecture/automation/vars',
+                cifmw_architecture_repo | default(ansible_user_dir+'/src/github.com/openstack-k8s-operators/architecture'),
+                'automation/vars',
                 cifmw_arch_automation_file | default('default.yaml')
               ) | ansible.builtin.path_join
             }}
