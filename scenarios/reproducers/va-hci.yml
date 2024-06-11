@@ -60,6 +60,16 @@ cifmw_libvirt_manager_configuration:
         - /home/dev-scripts/ocp_master_2.xml
       nets:
         - osp_trunk
+    ocp_worker:
+      amount: 1
+      admin_user: core
+      image_local_dir: "/home/dev-scripts/pool"
+      disk_file_name: "ocp_worker"
+      disksize: "105"
+      xml_paths:
+        - /home/dev-scripts/ocp_worker_0.xml
+      nets:
+        - osp_trunk        
     compute:
       uefi: "{{ cifmw_use_uefi }}"
       root_part_id: "{{ cifmw_root_partition_id }}"
@@ -95,6 +105,7 @@ cifmw_devscripts_config_overrides:
   worker_disk: 100
   worker_vcpu: 10
   num_extra_workers: 0
+  num_workers: 1
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
 # Note: with that extra_network_names "osp_trunk", we instruct
@@ -112,3 +123,13 @@ cifmw_ceph_daemons_layout:
   dashboard_enabled: false
   cephfs_enabled: true
   ceph_nfs_enabled: false
+
+cifmw_test_operator_tolerations:
+  - key: "testOperator"
+    value: "true"
+    effect: "NoSchedule"
+  - key: "testOperator"
+    value: "true"
+    effect: "NoExecute"
+cifmw_test_operator_node_selector:
+  kubernetes.io/hostname: worker-0
