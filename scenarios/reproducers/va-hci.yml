@@ -81,13 +81,17 @@ cifmw_libvirt_manager_configuration:
     ocp_worker:
       amount: 1
       admin_user: core
-      image_local_dir: "/home/dev-scripts/pool"
+      image_local_dir: "{{ cifmw_basedir }}/images/"
       disk_file_name: "ocp_worker"
       disksize: "105"
-      xml_paths:
-        - /home/dev-scripts/ocp_worker_0.xml
+      cpus: 16
+      memory: 16
+      root_part_id: 4
+      uefi: true
       nets:
-        - osp_trunk        
+        - ocppr
+        - ocpbm
+        - osp_trunk
     compute:
       uefi: "{{ cifmw_use_uefi }}"
       root_part_id: "{{ cifmw_root_partition_id }}"
@@ -118,11 +122,6 @@ cifmw_libvirt_manager_configuration:
 
 ## devscript support for OCP deploy
 cifmw_devscripts_config_overrides:
-  worker_memory: 16384
-  worker_disk: 100
-  worker_vcpu: 10
-  num_extra_workers: 0
-  num_workers: 1
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
 # Note: with that extra_network_names "osp_trunk", we instruct
