@@ -25,9 +25,10 @@
     cifmw_sushy_emulator_sshkey_path: >-
       {{
         [_ctl_reproducer_basedir, '../.ssh/sushy_emulator-key'] |
-        path_join | realpath
+        path_join
       }}
     cifmw_podman_user_linger: "zuul"
+    cifmw_sushy_emulator_libvirt_user: "{{ hostvars[cifmw_sushy_emulator_hypervisor_target].ansible_user_id | default('zuul') }}"
   block:
     - name: Ensure directories exist
       ansible.builtin.file:
@@ -37,6 +38,20 @@
       loop:
         - parameters
         - artifacts
+
+    - name: Tweak dnf configuration
+      become: true
+      community.general.ini_file:
+        no_extra_spaces: true
+        option: "{{ config.option }}"
+        path: "/etc/dnf/dnf.conf"
+        section: "{{ config.section | default('main') }}"
+        state: "{{ config.state | default(omit) }}"
+        value: "{{ config.value | default(omit) }}"
+      loop: "{{ cifmw_reproducer_dnf_tweaks }}"
+      loop_control:
+        label: "{{ config.option }}"
+        loop_var: 'config'
 
     - name: Install custom CA if needed
       ansible.builtin.import_role:
@@ -57,20 +72,6 @@
               cat /etc/pki/ca-trust/source/anchors/* >
               /etc/pki/ca-trust/source/anchors/rh.crt
             creates: "/etc/pki/ca-trust/source/anchors/rh.crt"
-
-    - name: Tweak dnf configuration
-      become: true
-      community.general.ini_file:
-        no_extra_spaces: true
-        option: "{{ config.option }}"
-        path: "/etc/dnf/dnf.conf"
-        section: "{{ config.section | default('main') }}"
-        state: "{{ config.state | default(omit) }}"
-        value: "{{ config.value | default(omit) }}"
-      loop: "{{ cifmw_reproducer_dnf_tweaks }}"
-      loop_control:
-        label: "{{ config.option }}"
-        loop_var: 'config'
 
     - name: Install some tools
       become: true
@@ -184,7 +185,7 @@
             default(hostvars[_proxy_host]['inventory_hostname'])) |
             default('')
           }}
-        _vm_ip: "{{ hostvars[host]['ansible_host'] | default('')}}"
+        _vm_ip: "{{ hostvars[host]['host_ip'] }}"
       ansible.builtin.blockinfile:
         path: "/home/zuul/.ssh/config"
         marker: "## {mark} {{ host }}"
@@ -335,6 +336,9 @@
         tasks_from: verify.yml
 
     - name: Install ansible dependencies
+      register: _async_dep_install
+      async: 600  # 10 minutes should be more than enough
+      poll: 0
       ansible.builtin.pip:
         requirements: https://raw.githubusercontent.com/openstack-k8s-operators/ci-framework/main/common-requirements.txt
 
@@ -354,7 +358,8 @@
             rejectattr('key', 'equalto', 'cifmw_extras') |
             rejectattr('key', 'equalto', 'cifmw_openshift_kubeconfig') |
             rejectattr('key', 'equalto', 'cifmw_openshift_token') |
-            rejectattr('key', 'equalto', 'cifmw_set_openstack_containers_registry') |
+            rejectattr('key', 'equalto', 'cifmw_update_containers_registry') |
+            rejectattr('key', 'equalto', 'cifmw_networking_env_definition') |
             rejectattr('key', 'match', '^cifmw_use_(?!lvms).*') |
             rejectattr('key', 'match', '^cifmw_reproducer.*') |
             rejectattr('key', 'match', '^cifmw_rhol.*') |
@@ -417,6 +422,7 @@
     - name: Wait for OCP nodes to be ready
       when:
         - groups.ocps is defined
+        - groups.ocps | length > 0
       delegate_to: "{{ item }}"
       ansible.builtin.wait_for_connection:
         sleep: 2
@@ -477,3 +483,10 @@
               default-route-openshift-image-registry.apps-crc.testing
               downloads-openshift-console.apps-crc.testing
               oauth-openshift.apps-crc.testing
+
+    - name: Ensure we have all dependencies installed
+      ansible.builtin.async_status:
+        jid: "{{ _async_dep_install.ansible_job_id }}"
+      register: _sync_dep_install_result
+      until: _sync_dep_install_result.finished
+      retries: 20

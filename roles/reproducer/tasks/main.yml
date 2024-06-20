@@ -28,6 +28,32 @@
     - cifmw_job_uri is defined
   ansible.builtin.include_tasks: ci_data.yml
 
+- name: Discover and expose CI Framework path on remote node
+  vars:
+    default_path: >-
+      {{
+        cifmw_reproducer_default_repositories |
+        selectattr('src', 'match', '^.*/ci[_\-]framework$') |
+        map(attribute='dest') | first
+      }}
+    custom_path: >-
+      {{
+        cifmw_reproducer_repositories |
+        selectattr('src', 'match', '^.*/ci-framework$') |
+        map(attribute='dest')
+      }}
+    _path: >-
+      {{
+        (custom_path | length > 0) |
+        ternary(custom_path | first, default_path)
+      }}
+  ansible.builtin.set_fact:
+    _cifmw_reproducer_framework_location: >-
+      {{
+        (_path is match('.*/ci-framwork/?$')) |
+        ternary(_path, [_path, 'ci-framework'] | path_join)
+      }}
+
 - name: Build final libvirt layout
   when:
     - cifmw_use_libvirt | default(false) | bool
@@ -104,6 +130,22 @@
         - bootstrap_env
         - bootstrap_layout
 
+- name: Bootstrap nat64 if needed
+  when:
+    - cifmw_use_libvirt | default(false) | bool
+    - cifmw_use_nat64 | default(false) | bool
+  tags:
+    - bootstrap_nat64
+    - bootstrap_layout
+    - bootstrap_env
+  ansible.builtin.include_tasks:
+    file: nat64_appliance.yml
+    apply:
+      tags:
+        - bootstrap_nat64
+        - bootstrap_layout
+        - bootstrap_env
+
 - name: Deploy CRC if needed
   when:
     - _use_crc | bool
@@ -129,16 +171,18 @@
       _cifmw_libvirt_manager_layout.vms.ocp.target is undefined
   tags:
     - bootstrap
-    - boostrap_layout
+    - bootstrap_layout
     - libvirt_layout
     - devscripts_layout
+    - ocp_layout
   ansible.builtin.include_tasks:
-    file: devscripts_layout.yml
+    file: ocp_layout.yml
     apply:
       tags:
         - bootstrap
         - bootstrap_layout
         - devscripts_layout
+        - ocp_layout
 
 - name: Load the architecture local kustomize patches
   when:
@@ -210,7 +254,7 @@
             ANSIBLE_LOG_PATH: "~/ansible-bootstrap.log"
           no_log: "{{ cifmw_nolog | default(true) | bool }}"
           ansible.builtin.command:
-            chdir: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework"
+            chdir: "{{ _cifmw_reproducer_framework_location }}"
             cmd: >-
               ansible-playbook -i ~/ci-framework-data/artifacts/zuul_inventory.yml
               -e @~/ci-framework-data/parameters/reproducer-variables.yml
@@ -243,41 +287,11 @@
             - (_cifmw_libvirt_manager_layout.vms.crc.amount is defined and
                (_cifmw_libvirt_manager_layout.vms.crc.amount | int ) > 0) or
               _cifmw_libvirt_manager_layout.vms.crc.amount is undefined
-          environment:
-            KUBECONFIG: "/home/zuul/.kube/config"
-            PATH: "{{ cifmw_path }}"
-          block:
-            - name: Gather network.operator info
-              register: _network
-              kubernetes.core.k8s_info:
-                api_version: "operator.openshift.io/v1"
-                kubeconfig: "~/.kube/config"
-                kind: Network
-                name: cluster
-
-            - name: Patch network operator
-              vars:
-                _network_backend: >-
-                  {{
-                    _network.resources |
-                    map(attribute="spec.defaultNetwork.type") |
-                    first
-                  }}
-              when:
-                - _network_backend == "OVNKubernetes"
-              kubernetes.core.k8s_json_patch:
-                api_version: "operator.openshift.io/v1"
-                kubeconfig: "~/.kube/config"
-                kind: Network
-                name: cluster
-                persist_config: true
-                patch:
-                  - path: "/spec/defaultNetwork/ovnKubernetesConfig/gatewayConfig/routingViaHost"
-                    value: true
-                    op: replace
-                  - path: "/spec/defaultNetwork/ovnKubernetesConfig/gatewayConfig/ipForwarding"
-                    value: "Global"
-                    op: replace
+          vars:
+            cifmw_openshift_kubeconfig: "/home/zuul/.kube/config"
+          ansible.builtin.include_role:
+            name: openshift_setup
+            tasks_from: patch_network_operator.yml
 
     - name: Emulate CI job
       when:
@@ -301,7 +315,7 @@
         - cifmw_job_uri is undefined
       delegate_to: controller-0
       vars:
-        run_directory: "src/github.com/openstack-k8s-operators/ci-framework"
+        run_directory: "{{ _cifmw_reproducer_framework_location }}"
         exports:
           ANSIBLE_LOG_PATH: "~/ansible-deploy-edpm.log"
         default_extravars:
