@@ -86,6 +86,8 @@ cifmw_libvirt_manager_configuration:
       image_local_dir: "{{ cifmw_basedir }}/images/"
       disk_file_name: "ocp_worker"
       disksize: "105"
+      extra_disks_num: 3
+      extra_disks_size: "50G"
       cpus: 16
       memory: 16
       root_part_id: 4
