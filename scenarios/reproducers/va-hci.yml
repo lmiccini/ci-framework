@@ -153,3 +153,27 @@ cifmw_test_operator_tolerations:
     effect: "NoExecute"
 cifmw_test_operator_node_selector:
   kubernetes.io/hostname: worker-0
+
+pre_deploy:
+  - name: 01 make masters schedulable
+    type: cr
+    definition:
+      spec:
+        mastersSchedulable: true
+    kind: Scheduler
+    resource_name: cluster
+    state: patched
+  - name: 02 make worker-0 noschedule
+    type: cr
+    definition:
+      spec:
+        taints:
+          - effect: NoSchedule
+            key: testOperator
+            value: 'true'
+          - effect: NoExecute
+            key: testOperator
+            value: 'true'
+    kind: Node
+    resource_name: worker-0
+    state: patched
