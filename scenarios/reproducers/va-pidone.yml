@@ -113,10 +113,8 @@ cifmw_libvirt_manager_configuration:
 ## devscript support for OCP deploy
 cifmw_devscripts_config_overrides:
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
+  cluster_subnet_v4: "10.30.0.0/16"
 
-  # this needs to be overridden otherwise there won't be enough
-  # subnets to assign to all the masters and workers
-  cluster_subnet_v4: "192.168.32.0/19"
 
 # Note: with that extra_network_names "osp_trunk", we instruct
 # devscripts role to create a new network, and associate it to
