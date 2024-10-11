@@ -423,3 +423,10 @@ cifmw_devscripts_enable_ocp_nodes_host_routing: true
 _arch_repo: "/home/zuul/src/github.com/openstack-k8s-operators/architecture"
 cifmw_architecture_scenario: bgp
 cifmw_kustomize_deploy_architecture_examples_path: "examples/dt/"
+
+cifmw_devscripts_config_overrides:
+  fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
+
+  # this needs to be overridden otherwise there won't be enough
+  # subnets to assign to all the masters and workers
+  cluster_subnet_v4: "192.168.32.0/19"
