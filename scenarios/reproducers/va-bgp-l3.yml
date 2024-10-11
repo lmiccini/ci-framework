@@ -243,22 +243,22 @@ cifmw_libvirt_manager_configuration:
       </network>
     l20-ocp2: |
       <network>
-        <name>l30-ocp2</name>
+        <name>l20-ocp2</name>
         <bridge name='l20-ocp2' stp='on' delay='0'/>
       </network>
     l01-ocp0: |
       <network>
-        <name>l31-ocp0</name>
+        <name>l01-ocp0</name>
         <bridge name='l01-ocp0' stp='on' delay='0'/>
       </network>
     l11-ocp1: |
       <network>
-        <name>l31-ocp1</name>
+        <name>l11-ocp1</name>
         <bridge name='l11-ocp1' stp='on' delay='0'/>
       </network>
     l21-ocp2: |
       <network>
-        <name>l31-ocp2</name>
+        <name>l21-ocp2</name>
         <bridge name='l21-ocp2' stp='on' delay='0'/>
       </network>
 
