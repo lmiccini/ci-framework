@@ -433,4 +433,3 @@ cifmw_devscripts_config_overrides:
 
   network_config_folder: "/home/zuul/netconf"
 
-cifmw_devscripts_use_static_ip_addr: true
