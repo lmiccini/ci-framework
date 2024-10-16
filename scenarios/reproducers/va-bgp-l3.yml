@@ -431,5 +431,6 @@ cifmw_devscripts_config_overrides:
   # subnets to assign to all the masters and workers
   cluster_subnet_v4: "192.168.32.0/19"
 
+  network_config_folder: "/home/zuul/netconf"
 
 cifmw_devscripts_use_static_ip_addr: true
