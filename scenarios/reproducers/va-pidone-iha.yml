@@ -127,7 +127,3 @@ cifmw_lvms_disk_list:
   - /dev/vdb
   - /dev/vdc
   - /dev/vdd
-
-cifmw_edpm_deploy_nfs: true
-cifmw_nfs_shares:
-  - nova
