@@ -127,3 +127,39 @@ cifmw_lvms_disk_list:
   - /dev/vdb
   - /dev/vdc
   - /dev/vdd
+
+cifmw_architecture_user_kustomize:
+  stage_1:
+    service-values:
+      data:
+        cinderVolumes:
+          ontap-nfs:
+            customServiceConfig: |
+              [ontap]
+              volume_backend_name=nfs
+              volume_driver=cinder.volume.drivers.nfs.NfsDriver
+              nfs_snapshot_support=true
+              nas_secure_file_operations=false
+              nas_secure_file_permissions=false              
+
+        ontap-cinder-secrets.conf: |
+          [ontap]
+          nas_host = 192.168.122.1
+          nas_share_path = /data/cinder
+
+        glance:
+          glanceAPIs:  # Workaround: due to https://github.com/openstack-k8s-operators/architecture/pull/349
+            default:
+              replicas: 1
+              type: single
+          extraMounts:
+            - extraVol:
+                - extraVolType: Nfs
+                  mounts:
+                    - mountPath: /var/lib/glance/images
+                      name: nfs
+                  volumes:
+                    - name: nfs
+                      nfs:
+                        path: "/data/glance"
+                        server: 192.168.122.1
