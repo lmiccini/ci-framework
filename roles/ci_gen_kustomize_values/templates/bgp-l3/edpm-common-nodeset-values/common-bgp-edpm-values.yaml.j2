@@ -1,4 +1,4 @@
-# source: bgp_dt01/edpm-common-nodeset-values/common-bgp-edpm-values.yaml.j2
+# source: bgp-l3/edpm-common-nodeset-values/common-bgp-edpm-values.yaml.j2
 {% set instances_names = []                                                            %}
 {% for _inst in cifmw_networking_env_definition.instances.keys()                       %}
 {%   if _inst.startswith(node_type)                                                    %}
@@ -58,7 +58,7 @@ data:
             fixedIP: 100.65.{{ rack_number }}.{{ peer_suffix + 1 }}
           - name: BgpMainNet
             subnetName: subnet{{ rack_number }}
-            fixedIP: 172.30.{{ rack_number }}.{{ peer_suffix + 1 }}
+            fixedIP: 99.99.{{ rack_number }}.{{ peer_suffix + 1 }}
           - name: BgpMainNetV6
             subnetName: subnet{{ rack_number }}
             fixedIP: f00d:f00d:f00d:f00d:f00d:f00d:f00d:00{{ (rack_number | int) + 1 }}{{ 2 if instance.startswith('compute') else 3 }}
