@@ -107,19 +107,18 @@ data:
       {
         "cniVersion": "0.3.1",
         "name": "{{ network.network_name }}",
-{%  if network.network_name == "octavia" %}
         "type": "bridge",
-{%  else %}
-        "type": "macvlan",
-{%  endif %}
+        "isDefaultGateway": false,
+        "isGateway": true,
+        "forceAddress": false,
+        "ipMasq": true,
+        "hairpinMode": true,
 {%  if network.network_name == "octavia" %}
         "bridge": "octbr",
-{%  elif network.vlan_id is defined %}
-        "master": "{{ network.network_name }}",
 {%  elif network.network_name == "ctlplane" %}
-        "master": "ospbr",
+        "bridge": "ospbr",
 {%  else %}
-        "master": "{{ ns.interfaces[network.network_name] }}",
+        "bridge": "{{ ns.interfaces[network.network_name] }}",
 {%  endif %}
         "ipam": {
           "type": "whereabouts",
