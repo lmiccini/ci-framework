@@ -360,12 +360,12 @@ cifmw_libvirt_manager_configuration:
         - # rack0 - compute0
           - "l00-node0"
           - "l01-node0"
-        - # rack1 - compute1
-          - "l10-node0"
-          - "l11-node0"
-        - # rack2 - compute2
-          - "l20-node0"
-          - "l21-node0"
+      #  - # rack1 - compute1
+      #    - "l10-node0"
+      #    - "l11-node0"
+      #  - # rack2 - compute2
+      #    - "l20-node0"
+      #    - "l21-node0"
 
     networker:
       amount: "{{ cifmw_libvirt_manager_networker_amount }}"
