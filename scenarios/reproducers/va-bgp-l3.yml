@@ -8,12 +8,16 @@ cifmw_test_operator_tempest_include_list: |
 
 cifmw_use_devscripts: true
 cifmw_use_libvirt: true
+num_racks: 3
 cifmw_virtualbmc_daemon_port: 50881
 cifmw_libvirt_manager_compute_amount: 3
 cifmw_libvirt_manager_pub_net: ocpbm
-cifmw_libvirt_manager_spineleaf_setup: true
 cifmw_reproducer_validate_network_host: "192.168.122.1"
+cifmw_libvirt_manager_spineleaf_setup: true
 cifmw_libvirt_manager_network_interface_types:
+  rtr-ocp: network
+  s0-rtr: network
+  s1-rtr: network
   l00-s0: network
   l01-s0: network
   l00-s1: network
@@ -24,30 +28,32 @@ cifmw_libvirt_manager_network_interface_types:
   l11-s1: network
   l20-s0: network
   l21-s0: network
-  l20-s1: network
+  l20-s1: network 
   l21-s1: network
-  l30-s0: network
-  l31-s0: network
-  l30-s1: network
-  l31-s1: network
   l00-node0: network
-  l01-node0: network
-  l10-node0: network
-  l11-node0: network
-  l20-node0: network
-  l21-node0: network
-  #l30-ocp0: network
-  #l31-ocp0: network
-  #l30-ocp1: network
-  #l31-ocp1: network
-  #l30-ocp2: network
-  #l31-ocp2: network
+  l00-node1: network
   l00-ocp0: network
+  l00-ocp1: network
+  l01-node0: network
+  l01-node1: network
   l01-ocp0: network
+  l01-ocp1: network
+  l10-node0: network
+  l10-node1: network
+  l10-ocp0: network
   l10-ocp1: network
+  l11-node0: network
+  l11-node1: network
+  l11-ocp0: network
   l11-ocp1: network
-  l20-ocp2: network
-  l21-ocp2: network
+  l20-node0: network
+  l20-node1: network
+  l20-ocp0: network
+  l20-ocp1: network
+  l21-node0: network
+  l21-node1: network
+  l21-ocp0: network
+  l21-ocp1: network
 
 
 ## <forward mode='nat'/>
@@ -114,6 +120,23 @@ cifmw_libvirt_manager_configuration:
               </ip>
       </network>
 
+    # router to ocp network
+    rtr-ocp: |
+      <network>
+        <name>rtr-ocp</name>
+        <bridge name='rtr-ocp' stp='on' delay='0'/>
+      </network>
+    # spines to router networks
+    s0-rtr: |
+      <network>
+        <name>s0-rtr</name>
+        <bridge name='s0-rtr' stp='on' delay='0'/>
+      </network>
+    s1-rtr: |
+      <network>
+        <name>s1-rtr</name>
+        <bridge name='s1-rtr' stp='on' delay='0'/>
+      </network>
     # leafs to spines networks
     ## rack0
     l00-s0: |
@@ -178,38 +201,47 @@ cifmw_libvirt_manager_configuration:
         <name>l21-s1</name>
         <bridge name='l21-s1' stp='on' delay='0'/>
       </network>
-    ## rack3
-    l30-s0: |
-      <network>
-        <name>l30-s0</name>
-        <bridge name='l30-s0' stp='on' delay='0'/>
-      </network>
-    l30-s1: |
-      <network>
-        <name>l30-s1</name>
-        <bridge name='l30-s1' stp='on' delay='0'/>
-      </network>
-    l31-s0: |
-      <network>
-        <name>l31-s0</name>
-        <bridge name='l31-s0' stp='on' delay='0'/>
-      </network>
-    l31-s1: |
-      <network>
-        <name>l31-s1</name>
-        <bridge name='l31-s1' stp='on' delay='0'/>
-      </network>
-    # leafs to nodes
+    # leafs to nodes and ocps
     ## rack0
     l00-node0: |
       <network>
         <name>l00-node0</name>
         <bridge name='l00-node0' stp='on' delay='0'/>
       </network>
+    l00-node1: |
+      <network>
+        <name>l00-node1</name>
+        <bridge name='l00-node1' stp='on' delay='0'/>
+      </network>
+    l00-ocp0: |
+      <network>
+        <name>l00-ocp0</name>
+        <bridge name='l00-ocp0' stp='on' delay='0'/>
+      </network>
+    l00-ocp1: |
+      <network>
+        <name>l00-ocp1</name>
+        <bridge name='l00-ocp1' stp='on' delay='0'/>
+      </network>
     l01-node0: |
       <network>
         <name>l01-node0</name>
         <bridge name='l01-node0' stp='on' delay='0'/>
+      </network>
+    l01-node1: |
+      <network>
+        <name>l01-node1</name>
+        <bridge name='l01-node1' stp='on' delay='0'/>
+      </network>
+    l01-ocp0: |
+      <network>
+        <name>l01-ocp0</name>
+        <bridge name='l01-ocp0' stp='on' delay='0'/>
+      </network>
+    l01-ocp1: |
+      <network>
+        <name>l01-ocp1</name>
+        <bridge name='l01-ocp1' stp='on' delay='0'/>
       </network>
     ## rack1
     l10-node0: |
@@ -217,10 +249,40 @@ cifmw_libvirt_manager_configuration:
         <name>l10-node0</name>
         <bridge name='l10-node0' stp='on' delay='0'/>
       </network>
+    l10-node1: |
+      <network>
+        <name>l10-node1</name>
+        <bridge name='l10-node1' stp='on' delay='0'/>
+      </network>
+    l10-ocp0: |
+      <network>
+        <name>l10-ocp0</name>
+        <bridge name='l10-ocp0' stp='on' delay='0'/>
+      </network>
+    l10-ocp1: |
+      <network>
+        <name>l10-ocp1</name>
+        <bridge name='l10-ocp1' stp='on' delay='0'/>
+      </network>
     l11-node0: |
       <network>
         <name>l11-node0</name>
         <bridge name='l11-node0' stp='on' delay='0'/>
+      </network>
+    l11-node1: |
+      <network>
+        <name>l11-node1</name>
+        <bridge name='l11-node1' stp='on' delay='0'/>
+      </network>
+    l11-ocp0: |
+      <network>
+        <name>l11-ocp0</name>
+        <bridge name='l11-ocp0' stp='on' delay='0'/>
+      </network>
+    l11-ocp1: |
+      <network>
+        <name>l11-ocp1</name>
+        <bridge name='l11-ocp1' stp='on' delay='0'/>
       </network>
     ## rack2
     l20-node0: |
@@ -228,74 +290,43 @@ cifmw_libvirt_manager_configuration:
         <name>l20-node0</name>
         <bridge name='l20-node0' stp='on' delay='0'/>
       </network>
+    l20-node1: |
+      <network>
+        <name>l20-node1</name>
+        <bridge name='l20-node1' stp='on' delay='0'/>
+      </network>
+    l20-ocp0: |
+      <network>
+        <name>l20-ocp0</name>
+        <bridge name='l20-ocp0' stp='on' delay='0'/>
+      </network>
+    l20-ocp1: |
+      <network>
+        <name>l20-ocp1</name>
+        <bridge name='l20-ocp1' stp='on' delay='0'/>
+      </network>
     l21-node0: |
       <network>
         <name>l21-node0</name>
         <bridge name='l21-node0' stp='on' delay='0'/>
       </network>
-    # leafs to ocp
-    ### rack3
-    #l30-ocp0: |
-    #  <network>
-    #    <name>l30-ocp0</name>
-    #    <bridge name='l30-ocp0' stp='on' delay='0'/>
-    #  </network>
-    #l30-ocp1: |
-    #  <network>
-    #    <name>l30-ocp1</name>
-    #    <bridge name='l30-ocp1' stp='on' delay='0'/>
-    #  </network>
-    #l30-ocp2: |
-    #  <network>
-    #    <name>l30-ocp2</name>
-    #    <bridge name='l30-ocp2' stp='on' delay='0'/>
-    #  </network>
-    #l31-ocp0: |
-    #  <network>
-    #    <name>l31-ocp0</name>
-    #    <bridge name='l31-ocp0' stp='on' delay='0'/>
-    #  </network>
-    #l31-ocp1: |
-    #  <network>
-    #    <name>l31-ocp1</name>
-    #    <bridge name='l31-ocp1' stp='on' delay='0'/>
-    #  </network>
-    #l31-ocp2: |
-    #  <network>
-    #    <name>l31-ocp2</name>
-    #    <bridge name='l31-ocp2' stp='on' delay='0'/>
-    #  </network>
-    ## rack3
-    l00-ocp0: |
+    l21-node1: |
       <network>
-        <name>l00-ocp0</name>
-        <bridge name='l00-ocp0' stp='on' delay='0'/>
+        <name>l21-node1</name>
+        <bridge name='l21-node1' stp='on' delay='0'/>
       </network>
-    l10-ocp1: |
+    l21-ocp0: |
       <network>
-        <name>l10-ocp1</name>
-        <bridge name='l10-ocp1' stp='on' delay='0'/>
+        <name>l21-ocp0</name>
+        <bridge name='l21-ocp0' stp='on' delay='0'/>
       </network>
-    l20-ocp2: |
+    l21-ocp1: |
       <network>
-        <name>l20-ocp2</name>
-        <bridge name='l20-ocp2' stp='on' delay='0'/>
+        <name>l21-ocp1</name>
+        <bridge name='l21-ocp1' stp='on' delay='0'/>
       </network>
-    l01-ocp0: |
-      <network>
-        <name>l01-ocp0</name>
-        <bridge name='l01-ocp0' stp='on' delay='0'/>
-      </network>
-    l11-ocp1: |
-      <network>
-        <name>l11-ocp1</name>
-        <bridge name='l11-ocp1' stp='on' delay='0'/>
-      </network>
-    l21-ocp2: |
-      <network>
-        <name>l21-ocp2</name>
-        <bridge name='l21-ocp2' stp='on' delay='0'/>
-      </network>
+
+
 
   vms:
     controller:
@@ -335,6 +366,34 @@ cifmw_libvirt_manager_configuration:
         - # rack2 - compute2
           - "l20-node0"
           - "l21-node0"
+
+    networker:
+      amount: "{{ cifmw_libvirt_manager_networker_amount }}"
+      root_part_id: >-
+        {{
+          (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
+          ternary(4, 1)
+        }}
+      image_url: "{{ cifmw_discovered_image_url }}"
+      sha256_image_name: "{{ cifmw_discovered_hash }}"
+      image_local_dir: "{{ cifmw_basedir }}/images/"
+      disk_file_name: "base-os.qcow2"
+      disksize: 40
+      memory: 8
+      cpus: 4
+      nets:  # nets common to all the networker nodes
+        - "ocpbm"
+        - "osp_trunk"
+      spineleafnets:
+        -  # rack0 - networker0
+          - "l00-node1"
+          - "l01-node1"
+        -  # rack1 - networker1
+          - "l10-node1"
+          - "l11-node1"
+        -  # rack2 - networker2
+          - "l20-node1"
+          - "l21-node1"
 
     r1_compute:
       amount: 1
@@ -398,94 +457,152 @@ cifmw_libvirt_manager_configuration:
         - # rack2 - ocp2
           - "l20-ocp2"
           - "l21-ocp2"
-    spine:
-      amount: 2
-      root_part_id: "{{ cifmw_root_partition_id }}"
-      uefi: "{{ cifmw_use_uefi }}"
+
+    ocp_worker:
+      amount: 4
+      uefi: true
+      root_part_id: 4
+      admin_user: core
+      image_local_dir: "{{ cifmw_basedir }}/images/"
+      disk_file_name: "ocp_worker"
+      disksize: "105"
+      memory: 16
+      cpus: 10
+      extra_disks_num: 1
+      extra_disks_size: "20G"
+      nets:  # nets common to all the ocp_worker nodes
+        - "ocppr"
+        - "ocpbm"
+        - "osp_trunk"
+      spineleafnets:
+        -  # rack0 - ocp worker 0
+          - "l00-ocp1"
+          - "l01-ocp1"
+        -  # rack1 - ocp worker 1
+          - "l10-ocp1"
+          - "l11-ocp1"
+        -  # rack2 - ocp worker 2
+          - "l20-ocp1"
+          - "l21-ocp1"
+        -  # router - ocp_tester (worker 3)
+          - "rtr-ocp"
+
+    router:
+      amount: 1
+      root_part_id: >-
+        {{
+          (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
+          ternary(4, 1)
+        }}
       image_url: "{{ cifmw_discovered_image_url }}"
       sha256_image_name: "{{ cifmw_discovered_hash }}"
       image_local_dir: "{{ cifmw_basedir }}/images/"
-      disk_file_name: "spine-centos-stream-9.qcow2"
+      disk_file_name: "base-os.qcow2"
       disksize: 25
       memory: 4
       cpus: 2
-      nets:
-        - ocpbm
+      nets:  # nets common to all the router nodes
+        - "ocpbm"
       spineleafnets:
-        - # spine0
+        -  # router - ocp_tester
+          - "s0-rtr"
+          - "s1-rtr"
+          - "rtr-ocp"
+
+
+    spine:
+      amount: 2
+      root_part_id: >-
+        {{
+          (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
+          ternary(4, 1)
+        }}
+      image_url: "{{ cifmw_discovered_image_url }}"
+      sha256_image_name: "{{ cifmw_discovered_hash }}"
+      image_local_dir: "{{ cifmw_basedir }}/images/"
+      disk_file_name: "base-os.qcow2"
+      disksize: 25
+      memory: 4
+      cpus: 2
+      nets:  # nets common to all the spine nodes
+        - "ocpbm"
+      spineleafnets:
+        -  # spine0
           - "l00-s0"
           - "l01-s0"
           - "l10-s0"
           - "l11-s0"
           - "l20-s0"
           - "l21-s0"
-          - "l30-s0"
-          - "l31-s0"
-        - # spine1
+          - "s0-rtr"
+        -  # spine1
           - "l00-s1"
           - "l01-s1"
           - "l10-s1"
           - "l11-s1"
           - "l20-s1"
           - "l21-s1"
-          - "l30-s1"
-          - "l31-s1"
+          - "s1-rtr"
+
     leaf:
-      amount: 8
-      root_part_id: "{{ cifmw_root_partition_id }}"
-      uefi: "{{ cifmw_use_uefi }}"
+      amount: 6
+      root_part_id: >-
+        {{
+          (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
+          ternary(4, 1)
+        }}
       image_url: "{{ cifmw_discovered_image_url }}"
       sha256_image_name: "{{ cifmw_discovered_hash }}"
       image_local_dir: "{{ cifmw_basedir }}/images/"
-      disk_file_name: "leaf-centos-stream-9.qcow2"
+      disk_file_name: "base-os.qcow2"
       disksize: 25
       memory: 4
       cpus: 2
-      nets:
-        - ocpbm
+      nets:  # nets common to all the leaf nodes
+        - "ocpbm"
       spineleafnets:
-        - # rack0 - leaf00
+        -  # rack0 - leaf00
           - "l00-s0"
           - "l00-s1"
           - "l00-node0"
+          - "l00-node1"
           - "l00-ocp0"
-        - # rack0 - leaf01
-          - "l01-s0"
+          - "l00-ocp1"
+        -  # rack0 - leaf01
+          - "l01-s0" 
           - "l01-s1"
           - "l01-node0"
+          - "l01-node1"
           - "l01-ocp0"
-        - # rack1 - leaf10
+          - "l01-ocp1"
+        -  # rack1 - leaf10
           - "l10-s0"
           - "l10-s1"
           - "l10-node0"
+          - "l10-node1"
+          - "l10-ocp0" 
           - "l10-ocp1"
-        - # rack1 - leaf11
+        -  # rack1 - leaf11
           - "l11-s0"
           - "l11-s1"
           - "l11-node0"
+          - "l11-node1"
+          - "l11-ocp0"
           - "l11-ocp1"
-        - # rack2 - leaf20
+        -  # rack2 - leaf20
           - "l20-s0"
           - "l20-s1"
           - "l20-node0"
-          - "l20-ocp2"
-        - # rack2 - leaf21
-          - "l21-s0"
+          - "l20-node1"
+          - "l20-ocp0"
+          - "l20-ocp1"
+        -  # rack2 - leaf21
+          - "l21-s0" 
           - "l21-s1"
           - "l21-node0"
-          - "l21-ocp2"
-        - # rack3 - leaf30
-          - "l30-s0"
-          - "l30-s1"
-          #- "l30-ocp0"
-          #- "l30-ocp1"
-          #- "l30-ocp2"
-        - # rack3 - leaf31
-          - "l31-s0"
-          - "l31-s1"
-          #- "l31-ocp0"
-          #- "l31-ocp1"
-          #- "l31-ocp2"
+          - "l21-node1"
+          - "l21-ocp0"
+          - "l21-ocp1"
 
 # Required for egress traffic from pods to the osp_trunk network
 cifmw_devscripts_enable_ocp_nodes_host_routing: true
