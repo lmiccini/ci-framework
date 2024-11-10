@@ -12,6 +12,7 @@ cifmw_virtualbmc_daemon_port: 50881
 cifmw_libvirt_manager_compute_amount: 3
 cifmw_libvirt_manager_pub_net: ocpbm
 cifmw_libvirt_manager_spineleaf_setup: true
+cifmw_reproducer_validate_network_host: "192.168.122.1"
 cifmw_libvirt_manager_network_interface_types:
   l00-s0: network
   l01-s0: network
@@ -49,13 +50,14 @@ cifmw_libvirt_manager_network_interface_types:
   l21-ocp2: network
 
 
+## <forward mode='nat'/>
 
 cifmw_libvirt_manager_configuration:
   networks:
     osp_trunk: |
       <network>
         <name>osp_trunk</name>
-        <forward mode='nat'/>
+        <forward mode='open'/>
         <bridge name='osp_trunk' stp='on' delay='0'/>
         <ip family='ipv4'
         address='{{ cifmw_networking_definition.networks.ctlplane.network |
