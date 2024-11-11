@@ -52,8 +52,6 @@ data:
 {% endfor %}
 
 {% for network in cifmw_networking_env_definition.networks.values() %}
-{% set r1_net = cifmw_networking_env_definition.networks[network.network_name + 'r1'] %}
-{% set r2_net = cifmw_networking_env_definition.networks[network.network_name + 'r2'] %}
 {% set ns.lb_tools = {} %}
   {{ network.network_name }}:
     dnsDomain: {{ network.search_domain }}
@@ -64,64 +62,6 @@ data:
 {%        set _ = ns.lb_tools.update({tool: []}) %}
 {%      endif %}
 {%    endfor %}
-#mark
-{% if (r1_net is defined) and (r2_net is defined) %}
-      - allocationRanges:
-{%    for range in network.tools.netconfig.ipv4_ranges %}
-        - end: {{ range.end }}
-          start: {{ range.start }}
-{%    endfor %}
-        cidr: {{ network.network_v4 }}
-{%      if network.gw_v4 is defined %}
-        gateway: {{ network.gw_v4 }}
-{%      endif %}
-        name: subnet1
-{%  if network.vlan_id is defined  %}
-        vlan: {{ network.vlan_id }}
-{%  endif %}
-        routes:
-          - destination: "{{ r1_net.network_v4 }}"
-            nexthop: "{{network.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}"
-          - destination: "{{ r2_net.network_v4 }}"
-            nexthop: "{{network.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}"
-      - allocationRanges:
-{%    for range in r1_net.tools.netconfig.ipv4_ranges %}
-        - end: {{ range.end }}
-          start: {{ range.start }}
-{%    endfor %}
-        cidr: {{ r1_net.network_v4 }}
-{%      if r1_net.gw_v4 is defined %}
-        gateway: {{ r1_net.gw_v4 }}
-{%      endif %}
-        name: subnet2
-{%  if r1_net.vlan_id is defined  %}
-        vlan: {{ r1_net.vlan_id }}
-{%  endif %}
-        routes:
-          - destination: "{{ network.network_v4 }}"
-            nexthop: "{{r1_net.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}"
-          - destination: "{{ r2_net.network_v4 }}"
-            nexthop: "{{r1_net.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}"
-      - allocationRanges:
-{%    for range in r2_net.tools.netconfig.ipv4_ranges %}
-        - end: {{ range.end }}
-          start: {{ range.start }}
-{%    endfor %}
-        cidr: {{ r2_net.network_v4 }}
-{%      if r2_net.gw_v4 is defined %}
-        gateway: {{ r2_net.gw_v4 }}
-{%      endif %}
-        name: subnet3
-{%  if r2_net.vlan_id is defined  %}
-        vlan: {{ r2_net.vlan_id }}
-{%  endif %}
-        routes:
-          - destination: "{{ network.network_v4 }}"
-            nexthop: "{{r2_net.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}"
-          - destination: "{{ r1_net.network_v4 }}"
-            nexthop: "{{r2_net.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}"
-{% else %}
-#endmark
       - allocationRanges:
 {%    for range in network.tools.netconfig.ipv4_ranges %}
         - end: {{ range.end }}
@@ -178,19 +118,14 @@ data:
 {%  elif network.network_name == "ctlplane" %}
         "bridge": "ospbr",
 {%  else %}
+{%    if ns.interfaces[network.network_name] is defined %}
         "bridge": "{{ network.network_name }}",
+{%    endif %}
 {%  endif %}
         "ipam": {
           "type": "whereabouts",
           "range": "{{ network.network_v4 }}",
           "range_start": "{{ network.tools.multus.ipv4_ranges.0.start }}",
-{%    if (r1_net is defined) and (r2_net is defined) %}
-          "range_end": "{{ network.tools.multus.ipv4_ranges.0.end }}",
-          "routes": [
-              { "dst": "{{ r1_net.network_v4 }}", "gw": "{{network.network_v4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}" },
-              { "dst": "{{ r2_net.network_v4 }}", "gw": "{{ network.network_v4 |  ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address')}}" }
-            ]
-{%    else %}
           "range_end": "{{ network.tools.multus.ipv4_ranges.0.end }}"
 {%    endif %}
         }
