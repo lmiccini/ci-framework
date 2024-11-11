@@ -124,16 +124,9 @@ data:
 {%  endif %}
         "ipam": {
           "type": "whereabouts",
-#workaround lmiccini test fake ctlplane
-{% if network.network_name == "ctlplane" %}
-          "range": "192.168.125.0/24",
-          "range_start": "192.168.125.30",
-          "range_end": "192.168.125.70",
-{% else %}
           "range": "{{ network.network_v4 }}",
           "range_start": "{{ network.tools.multus.ipv4_ranges.0.start }}",
           "range_end": "{{ network.tools.multus.ipv4_ranges.0.end }}"
-{% endif %}
 {%    endif %}
         }
       }
