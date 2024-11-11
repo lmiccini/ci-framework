@@ -83,14 +83,14 @@ cifmw_libvirt_manager_configuration:
         <forward mode='bridge'/>
         <bridge name='ocppr'/>
       </network>
-    r1_pb: |
-      <network>
-        <name>r1_pb</name>
-          <forward mode='nat'/>
-            <bridge name='r1_pb' stp='on' delay='0'/>
-              <ip family='ipv4' address='10.0.20.1' prefix='24'>
-              </ip>
-      </network>
+#    r1_pb: |
+#      <network>
+#        <name>r1_pb</name>
+#          <forward mode='nat'/>
+#            <bridge name='r1_pb' stp='on' delay='0'/>
+#              <ip family='ipv4' address='10.0.20.1' prefix='24'>
+#              </ip>
+#      </network>
     r1_tr: |
       <network>
         <name>r1_tr</name>
@@ -99,14 +99,14 @@ cifmw_libvirt_manager_configuration:
               <ip family='ipv4' address='192.168.133.1' prefix='24'>
               </ip>
       </network>
-    r2_pb: |
-      <network>
-        <name>r2_pb</name>
-          <forward mode='nat'/>
-            <bridge name='r2_pb' stp='on' delay='0'/>
-              <ip family='ipv4' address='10.0.30.1' prefix='24'>
-              </ip>
-      </network>
+#    r2_pb: |
+#      <network>
+#        <name>r2_pb</name>
+#          <forward mode='nat'/>
+#            <bridge name='r2_pb' stp='on' delay='0'/>
+#              <ip family='ipv4' address='10.0.30.1' prefix='24'>
+#              </ip>
+#      </network>
     r2_tr: |
       <network>
         <name>r2_tr</name>
