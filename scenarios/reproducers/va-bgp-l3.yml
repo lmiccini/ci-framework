@@ -403,7 +403,7 @@ cifmw_libvirt_manager_configuration:
       memory: 8
       cpus: 4
       nets:
-        - r1_pb
+        - ocpbm
         - r1_tr
       spineleafnets:
         - # rack1 - compute1
@@ -422,7 +422,7 @@ cifmw_libvirt_manager_configuration:
       memory: 8
       cpus: 4
       nets:
-        - r2_pb
+        - ocpbm
         - r2_tr
       spineleafnets:
         - # rack2 - compute2
