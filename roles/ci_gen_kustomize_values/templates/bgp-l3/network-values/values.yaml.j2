@@ -178,7 +178,7 @@ data:
 {%  elif network.network_name == "ctlplane" %}
         "bridge": "ospbr",
 {%  else %}
-        "bridge": "{{ ns.interfaces[network.network_name] }}",
+        "bridge": "{{ network.network_name }}",
 {%  endif %}
         "ipam": {
           "type": "whereabouts",
