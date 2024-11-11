@@ -1,16 +1,13 @@
 ---
-cifmw_run_tests: true
-cifmw_run_tempest: true
-cifmw_run_test_role: test_operator
-cifmw_test_operator_timeout: 7200
-cifmw_test_operator_tempest_include_list: |
-  tempest.scenario.test_network_basic_ops.TestNetworkBasicOps
-
 cifmw_use_devscripts: true
 cifmw_use_libvirt: true
-num_racks: 3
 cifmw_virtualbmc_daemon_port: 50881
-cifmw_libvirt_manager_compute_amount: 3
+cifmw_use_uefi: >-
+  {{ (cifmw_repo_setup_os_release is defined
+      and cifmw_repo_setup_os_release == 'rhel') | bool }}
+num_racks: 3
+cifmw_libvirt_manager_compute_amount: 1
+cifmw_libvirt_manager_networker_amount: "{{ num_racks }}"
 cifmw_libvirt_manager_pub_net: ocpbm
 cifmw_reproducer_validate_network_host: "192.168.122.1"
 cifmw_libvirt_manager_spineleaf_setup: true
@@ -56,8 +53,6 @@ cifmw_libvirt_manager_network_interface_types:
   l21-ocp1: network
 
 
-## <forward mode='nat'/>
-
 cifmw_libvirt_manager_configuration:
   networks:
     osp_trunk: |
@@ -65,6 +60,7 @@ cifmw_libvirt_manager_configuration:
         <name>osp_trunk</name>
         <forward mode='open'/>
         <bridge name='osp_trunk' stp='on' delay='0'/>
+        <dns enable="no"/>
         <ip family='ipv4'
         address='{{ cifmw_networking_definition.networks.ctlplane.network |
                     ansible.utils.nthhost(1) }}'
@@ -967,4 +963,14 @@ cifmw_networking_mapper_interfaces_info_translations:
   r1_tr:
     - ctlplaner1
   r2_tr:
-    - ctlplaner2          
+    - ctlplaner2
+
+
+cifmw_run_tests: false
+cifmw_run_tempest: false
+cifmw_run_test_role: test_operator
+cifmw_test_operator_timeout: 7200
+cifmw_test_operator_tempest_include_list: |
+  tempest.scenario.test_network_basic_ops.TestNetworkBasicOps
+
+
