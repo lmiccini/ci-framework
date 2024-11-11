@@ -901,6 +901,20 @@ cifmw_networking_definition:
           trunk-parent: ctlplane
         storage:
           trunk-parent: ctlplane
+    ocp-workers:
+      network-template:
+        range:
+          start: 20
+          length: 10
+      networks:
+        ctlplane: {}
+        internalapi:
+          trunk-parent: ctlplane
+        tenant:
+          trunk-parent: ctlplane
+        storage:
+          trunk-parent: ctlplane
+
     computes:
       network-template:
         range:
