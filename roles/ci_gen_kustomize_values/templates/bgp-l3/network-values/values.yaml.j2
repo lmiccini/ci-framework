@@ -9,18 +9,6 @@ data:
 {%   if host is match('^(ocp|crc).*') %}
   node_{{ ns.ocp_index }}:
     name: {{ hostname }}
-{%     for network in cifmw_networking_env_definition.instances[host]['networks'].values() %}
-{%       set ns.interfaces = ns.interfaces |
-                             combine({network.network_name: (network.parent_interface |
-                                                             default(network.interface_name)
-                                                            )
-                                     },
-                                     recursive=true) %}
-    {{ network.network_name }}_ip: {{ network.ip_v4 }}
-{%       if 'worker-3' == hostname and 'ctlplane' == network.network_name %}
-    base_if: {{ network.interface_name }}
-{%       endif %}
-{%     endfor %}
 {%     set node_bgp_orig_content = original_content.data.bgp.bgpdefs['node' ~ ns.ocp_index] %}
 {%     set node_bgp_net0 = node_bgp_orig_content.bgpnet0 %}
 {%     if 'worker-3' != hostname %}
