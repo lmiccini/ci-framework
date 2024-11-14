@@ -115,8 +115,6 @@ data:
         "hairpinMode": true,
 {%  if network.network_name == "octavia" %}
         "bridge": "octbr",
-{%  elif network.network_name == "ctlplane" %}
-        "bridge": "ospbr",
 {%  else %}
         "bridge": "{{ network.network_name }}",
 {%  endif %}
