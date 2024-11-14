@@ -47,7 +47,7 @@
         _utility_net: >-
           {{
             (_ocpbm_net | length > 0 ) |
-            ternary(_ctlplane_net, _pub_net_data)
+            ternary(_ocpbm_net, _pub_net_data)
           }}
         _ocp_name: >-
           {{
