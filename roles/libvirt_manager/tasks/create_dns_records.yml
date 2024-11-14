@@ -33,14 +33,20 @@
             vm.value.networks | dict2items |
             selectattr('key', 'match', '^ctlplane')
           }}
+        _ocpbm_net: >-
+          {{
+            vm.value.networks | dict2items |
+            selectattr('key', 'match', '^ocpbm')
+          }}
         _pub_net_data: >-
           {{
             vm.value.networks | dict2items |
             selectattr('key', 'match', cifmw_libvirt_manager_pub_net)
           }}
+# lmiccini workaround
         _utility_net: >-
           {{
-            (_ctlplane_net | length > 0 ) |
+            (_ocpbm_net | length > 0 ) |
             ternary(_ctlplane_net, _pub_net_data)
           }}
         _ocp_name: >-

@@ -52,18 +52,6 @@ cifmw_libvirt_manager_network_interface_types:
 
 cifmw_libvirt_manager_configuration:
   networks:
-    osp_trunk: |
-      <network>
-        <name>osp_trunk</name>
-        <forward mode='nat'/>
-        <bridge name='osp_trunk' stp='on' delay='0'/>
-        <ip family='ipv4'
-        address='{{ cifmw_networking_definition.networks.ctlplane.network |
-                    ansible.utils.nthhost(1) }}'
-        prefix='{{ cifmw_networking_definition.networks.ctlplane.network |
-                   ansible.utils.ipaddr('prefix') }}'>
-        </ip>
-      </network>
     ocpbm: |
       <network>
         <name>ocpbm</name>
@@ -275,7 +263,6 @@ cifmw_libvirt_manager_configuration:
       cpus: 4
       nets:
         - ocpbm
-        - osp_trunk
     compute:
       amount: "{{ cifmw_libvirt_manager_compute_amount }}"
       root_part_id: "{{ cifmw_root_partition_id }}"
@@ -289,7 +276,6 @@ cifmw_libvirt_manager_configuration:
       cpus: 4
       nets:
         - ocpbm
-        - osp_trunk
       spineleafnets:
         - # rack0 - compute0
           - "l00-node0"
@@ -313,7 +299,6 @@ cifmw_libvirt_manager_configuration:
       nets:
         - ocppr
         - ocpbm
-        - osp_trunk
       spineleafnets:
         - # rack0 - ocp0
           - "l00-ocp0"
