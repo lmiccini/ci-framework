@@ -429,7 +429,8 @@ cifmw_devscripts_config_overrides:
 
   # this needs to be overridden otherwise there won't be enough
   # subnets to assign to all the masters and workers
-  cluster_subnet_v4: "192.168.32.0/19"
+  #cluster_subnet_v4: "192.168.32.0/19"
+  cluster_subnet_v4: "192.172.0.0/16"
 
   network_config_folder: "/home/zuul/netconf"
 
