@@ -1,14 +1,14 @@
 ---
 
-cifmw_reproducer_default_repositories:
-  - src: "https://github.com/lmiccini/ci-framework"
-    dest: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework"
-    override-checkout: "l3xl-aio"
-  - src: "https://github.com/openstack-k8s-operators/install_yamls"
-    dest: "/home/zuul/src/github.com/openstack-k8s-operators/install_yamls"
-  - src: "https://github.com/lmiccini/architecture"
-    dest: "/home/zuul/src/github.com/openstack-k8s-operators/architecture"
-    override-checkout: "l3xl"
+#cifmw_reproducer_default_repositories:
+#  - src: "https://github.com/lmiccini/ci-framework"
+#    dest: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework"
+#    override-checkout: "l3xl-aio"
+#  - src: "https://github.com/openstack-k8s-operators/install_yamls"
+#    dest: "/home/zuul/src/github.com/openstack-k8s-operators/install_yamls"
+#  - src: "https://github.com/lmiccini/architecture"
+#    dest: "/home/zuul/src/github.com/openstack-k8s-operators/architecture"
+#    override-checkout: "l3xl"
 
 cifmw_os_net_setup_config:
   - name: public
