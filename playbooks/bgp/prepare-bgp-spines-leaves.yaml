@@ -403,10 +403,10 @@
       loop_control:
         index_var: loop_index
 
-    - name: Clean up nm connections except eth0
-      become: true
-      ansible.builtin.shell: |
-        for i in $(nmcli c show |grep Wired |awk '{ print $4}'); do nmcli c delete $i;done
+#    - name: Clean up nm connections except eth0
+#      become: true
+#      ansible.builtin.shell: |
+#        for i in $(nmcli c show |grep Wired |awk '{ print $4}'); do nmcli c delete $i;done
 
     - name: Configure downlink leaf connections on racks 0, 1 and 2
       become: true
@@ -522,12 +522,12 @@
         name: NetworkManager.service
         state: restarted
 
-    # FIXME: workaround
-    - name: Restart FRR
-      become: true
-      ansible.builtin.systemd:
-        name: frr
-        state: restarted
+#    # FIXME: workaround
+#    - name: Restart FRR
+#      become: true
+#      ansible.builtin.systemd:
+#        name: frr
+#        state: restarted
 
     - name: Check new default route corresponds with BGP
       ansible.builtin.command:
