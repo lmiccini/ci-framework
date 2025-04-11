@@ -92,7 +92,10 @@
         - name: Install frr
           become: true
           ansible.builtin.package:
-            name: frr
+            #name: frr
+            name:
+              - http://10.6.0.133:81/frr/frr-8.5.3-4.el9_4.4.x86_64.rpm
+              - http://10.6.0.133:81/frr/frr-selinux-8.5.3-4.el9_4.4.noarch.rpm
             state: present
 
     - name: Enable FRR BGP daemon
