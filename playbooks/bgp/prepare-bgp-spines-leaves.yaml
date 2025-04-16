@@ -92,8 +92,9 @@
         - name: Install frr
           become: true
           ansible.builtin.package:
-            name: frr
+            name: frr-8.5.3-4.el9
             state: present
+            #disable_gpg_check: true
 
     - name: Enable FRR BGP daemon
       become: true
@@ -403,6 +404,11 @@
       loop_control:
         index_var: loop_index
 
+#    - name: Clean up nm connections except eth0
+#      become: true
+#      ansible.builtin.shell: |
+#        for i in $(nmcli c show |grep Wired |awk '{ print $4}'); do nmcli c delete $i;done
+
     - name: Configure downlink leaf connections on racks 0, 1 and 2
       become: true
       vars:
@@ -413,6 +419,8 @@
         autoconnect: true
         conn_name: "{{ item }}"
         ip4: "{{ leaf_ds_ip4 }}/30"
+        type: ethernet
+        ifname: "eth{{ 3 + (loop_index | int) }}"
         method4: manual
         method6: link-local
         state: present
@@ -427,8 +435,12 @@
         conn_name: "{{ item }}"
         method4: disabled
         method6: link-local
+        type: ethernet
+        ifname: "eth{{ 1 + (loop_index | int) }}"
         state: present
       loop: "{{ uplink_conns }}"
+      loop_control:
+        index_var: loop_index
 
     - name: Configure FRR
       become: true
@@ -510,6 +522,13 @@
       ansible.builtin.systemd:
         name: NetworkManager.service
         state: restarted
+
+#    # FIXME: workaround
+#    - name: Restart FRR
+#      become: true
+#      ansible.builtin.systemd:
+#        name: frr
+#        state: restarted
 
     - name: Check new default route corresponds with BGP
       ansible.builtin.command:
