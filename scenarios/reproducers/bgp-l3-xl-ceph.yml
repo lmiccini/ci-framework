@@ -47,6 +47,7 @@ cifmw_libvirt_manager_network_interface_types:
   l00-node0: network
   l00-node1: network
   l00-node2: network
+  l00-node3: network
   l00-ocp0: network
   l00-ocp1: network
   l00-ocp2: network
@@ -54,6 +55,7 @@ cifmw_libvirt_manager_network_interface_types:
   l01-node0: network
   l01-node1: network
   l01-node2: network
+  l01-node3: network
   l01-ocp0: network
   l01-ocp1: network
   l01-ocp2: network
@@ -61,6 +63,7 @@ cifmw_libvirt_manager_network_interface_types:
   l10-node0: network
   l10-node1: network
   l10-node2: network
+  l10-node3: network
   l10-ocp0: network
   l10-ocp1: network
   l10-ocp2: network
@@ -68,6 +71,7 @@ cifmw_libvirt_manager_network_interface_types:
   l11-node0: network
   l11-node1: network
   l11-node2: network
+  l11-node3: network
   l11-ocp0: network
   l11-ocp1: network
   l11-ocp2: network
@@ -75,6 +79,7 @@ cifmw_libvirt_manager_network_interface_types:
   l20-node0: network
   l20-node1: network
   l20-node2: network
+  l20-node3: network
   l20-ocp0: network
   l20-ocp1: network
   l20-ocp2: network
@@ -82,6 +87,7 @@ cifmw_libvirt_manager_network_interface_types:
   l21-node0: network
   l21-node1: network
   l21-node2: network
+  l21-node3: network
   l21-ocp0: network
   l21-ocp1: network
   l21-ocp2: network
@@ -199,6 +205,11 @@ cifmw_libvirt_manager_configuration:
         <name>l00-node2</name>
         <bridge name='l00-node2' stp='on' delay='0'/>
       </network>
+    l00-node3: |
+      <network>
+        <name>l00-node3</name>
+        <bridge name='l00-node3' stp='on' delay='0'/>
+      </network>
     l00-ocp0: |
       <network>
         <name>l00-ocp0</name>
@@ -233,6 +244,11 @@ cifmw_libvirt_manager_configuration:
       <network>
         <name>l01-node2</name>
         <bridge name='l01-node2' stp='on' delay='0'/>
+      </network>
+    l01-node3: |
+      <network>
+        <name>l01-node3</name>
+        <bridge name='l01-node3' stp='on' delay='0'/>
       </network>
     l01-ocp0: |
       <network>
@@ -270,6 +286,11 @@ cifmw_libvirt_manager_configuration:
         <name>l10-node2</name>
         <bridge name='l10-node2' stp='on' delay='0'/>
       </network>
+    l10-node3: |
+      <network>
+        <name>l10-node3</name>
+        <bridge name='l10-node3' stp='on' delay='0'/>
+      </network>
     l10-ocp0: |
       <network>
         <name>l10-ocp0</name>
@@ -304,6 +325,11 @@ cifmw_libvirt_manager_configuration:
       <network>
         <name>l11-node2</name>
         <bridge name='l11-node2' stp='on' delay='0'/>
+      </network>
+    l11-node3: |
+      <network>
+        <name>l11-node3</name>
+        <bridge name='l11-node3' stp='on' delay='0'/>
       </network>
     l11-ocp0: |
       <network>
@@ -341,6 +367,11 @@ cifmw_libvirt_manager_configuration:
         <name>l20-node2</name>
         <bridge name='l20-node2' stp='on' delay='0'/>
       </network>
+    l20-node3: |
+      <network>
+        <name>l20-node3</name>
+        <bridge name='l20-node3' stp='on' delay='0'/>
+      </network>
     l20-ocp0: |
       <network>
         <name>l20-ocp0</name>
@@ -375,6 +406,11 @@ cifmw_libvirt_manager_configuration:
       <network>
         <name>l21-node2</name>
         <bridge name='l21-node2' stp='on' delay='0'/>
+      </network>
+    l21-node3: |
+      <network>
+        <name>l21-node3</name>
+        <bridge name='l21-node3' stp='on' delay='0'/>
       </network>
     l21-ocp0: |
       <network>
@@ -466,7 +502,7 @@ cifmw_libvirt_manager_configuration:
         - ocpbm
         - osp_trunk
     r0-compute: &r0_compute_def
-      amount: 2
+      amount: 3
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -479,6 +515,8 @@ cifmw_libvirt_manager_configuration:
       disksize: 50
       memory: 8
       cpus: 4
+      extra_disks_num: 3
+      extra_disks_size: 30G
       nets:
         - "ocpbm"
         - "r0_tr"
@@ -486,11 +524,14 @@ cifmw_libvirt_manager_configuration:
         -  # rack0 - compute0
           - "l00-node0"
           - "l01-node0"
-        -  # rack0 - compute0
+        -  # rack0 - compute1
           - "l00-node1"
           - "l01-node1"
+        -  # rack0 - compute2
+          - "l00-node2"
+          - "l01-node2"
     r1-compute:
-      amount: 2
+      amount: 3
       root_part_id: "{{ cifmw_root_partition_id }}"
       uefi: "{{ cifmw_use_uefi }}"
       image_url: "{{ cifmw_discovered_image_url }}"
@@ -499,6 +540,8 @@ cifmw_libvirt_manager_configuration:
       disk_file_name: "centos-stream-9.qcow2"
       disksize: 50
       memory: 8
+      extra_disks_num: 3
+      extra_disks_size: 30G
       cpus: 4
       nets:
         - ocpbm
@@ -510,8 +553,11 @@ cifmw_libvirt_manager_configuration:
         - # rack1 - compute1
           - "l10-node1"
           - "l11-node1"
+        - # rack1 - compute2
+          - "l10-node2"
+          - "l11-node2"
     r2-compute:
-      amount: 2
+      amount: 3
       root_part_id: "{{ cifmw_root_partition_id }}"
       uefi: "{{ cifmw_use_uefi }}"
       image_url: "{{ cifmw_discovered_image_url }}"
@@ -521,6 +567,8 @@ cifmw_libvirt_manager_configuration:
       disksize: 50
       memory: 8
       cpus: 4
+      extra_disks_num: 3
+      extra_disks_size: 30G
       nets:
         - ocpbm
         - r2_tr
@@ -531,6 +579,9 @@ cifmw_libvirt_manager_configuration:
         - # rack2 - compute1
           - "l20-node1"
           - "l21-node1"
+        - # rack2 - compute2
+          - "l20-node2"
+          - "l21-node2"
 
     r0-networker:
       amount: 1
@@ -552,8 +603,8 @@ cifmw_libvirt_manager_configuration:
         - "r0_tr"
       spineleafnets:
         -  # rack0 - networker0
-          - "l00-node2"
-          - "l01-node2"
+          - "l00-node3"
+          - "l01-node3"
     r1-networker:
       amount: 1
       root_part_id: >-
@@ -574,8 +625,8 @@ cifmw_libvirt_manager_configuration:
         - "r1_tr"
       spineleafnets:
         -  # rack1 - networker0
-          - "l10-node2"
-          - "l11-node2"
+          - "l10-node3"
+          - "l11-node3"
     r2-networker:
       amount: 1
       root_part_id: >-
@@ -596,8 +647,8 @@ cifmw_libvirt_manager_configuration:
         - "r2_tr"
       spineleafnets:
         -  # rack2 - networker0
-          - "l20-node2"
-          - "l21-node2"
+          - "l20-node3"
+          - "l21-node3"
     ocp:
       amount: 3
       uefi: true
@@ -745,6 +796,7 @@ cifmw_libvirt_manager_configuration:
           - "l00-node0"
           - "l00-node1"
           - "l00-node2"
+          - "l00-node3"
           - "l00-ocp0"
           - "l00-ocp1"
           - "l00-ocp2"
@@ -755,6 +807,7 @@ cifmw_libvirt_manager_configuration:
           - "l01-node0"
           - "l01-node1"
           - "l01-node2"
+          - "l01-node3"
           - "l01-ocp0"
           - "l01-ocp1"
           - "l01-ocp2"
@@ -765,6 +818,7 @@ cifmw_libvirt_manager_configuration:
           - "l10-node0"
           - "l10-node1"
           - "l10-node2"
+          - "l10-node3"
           - "l10-ocp0"
           - "l10-ocp1"
           - "l10-ocp2"
@@ -775,6 +829,7 @@ cifmw_libvirt_manager_configuration:
           - "l11-node0"
           - "l11-node1"
           - "l11-node2"
+          - "l11-node3"
           - "l11-ocp0"
           - "l11-ocp1"
           - "l11-ocp2"
@@ -785,6 +840,7 @@ cifmw_libvirt_manager_configuration:
           - "l20-node0"
           - "l20-node1"
           - "l20-node2"
+          - "l20-node3"
           - "l20-ocp0"
           - "l20-ocp1"
           - "l20-ocp2"
@@ -795,6 +851,7 @@ cifmw_libvirt_manager_configuration:
           - "l21-node0"
           - "l21-node1"
           - "l21-node2"
+          - "l21-node3"
           - "l21-ocp0"
           - "l21-ocp1"
           - "l21-ocp2"
@@ -804,7 +861,7 @@ cifmw_libvirt_manager_configuration:
 cifmw_devscripts_config_overrides:
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
   cluster_subnet_v4: "192.172.0.0/16"
-  #network_config_folder: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework/scenarios/reproducers/bgp/devscripts_netconfig_xl"
+  #network_config_folder: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework/scenarios/reproducers/bgp/devscripts_netconfig_xl_ceph"
   network_config_folder: "/home/zuul/netconf"
   fips_validate: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
@@ -815,10 +872,10 @@ cifmw_devscripts_enable_ocp_nodes_host_routing: true
 # controller-0 as-is and be consumed by the `deploy-va.sh` script.
 # Please note, all paths are on the controller-0, meaning managed by the
 # Framework. Please do not edit them!
-_arch_repo: "/home/zuul/src/github.com/openstack-k8s-operators/architecture"
-cifmw_architecture_scenario: bgp-l3-xl
+_arch_repo: "{{ cifmw_architecture_repo | default('/home/zuul/src/github.com/openstack-k8s-operators/architecture') }}"
+cifmw_architecture_scenario: bgp-l3-xl-ceph
 cifmw_kustomize_deploy_architecture_examples_path: "examples/dt/"
-cifmw_arch_automation_file: "bgp-l3-xl.yaml"
+cifmw_arch_automation_file: "bgp-l3-xl-ceph.yaml"
 cifmw_architecture_automation_file: >-
   {{
     (_arch_repo,
@@ -847,7 +904,7 @@ pre_deploy:
     extra_vars:
       num_racks: "{{ num_racks }}"
       router_bool: true
-      edpm_nodes_per_rack: 3
+      edpm_nodes_per_rack: 4
       ocp_nodes_per_rack: 4
       router_uplink_ip: 100.64.10.1
 
