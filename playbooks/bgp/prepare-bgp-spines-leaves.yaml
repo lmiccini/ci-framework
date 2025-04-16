@@ -413,6 +413,8 @@
         autoconnect: true
         conn_name: "{{ item }}"
         ip4: "{{ leaf_ds_ip4 }}/30"
+        type: ethernet
+        ifname: "eth{{ 3 + (loop_index | int) }}"
         method4: manual
         method6: link-local
         state: present
@@ -427,8 +429,12 @@
         conn_name: "{{ item }}"
         method4: disabled
         method6: link-local
+        type: ethernet
+        ifname: "eth{{ 1 + (loop_index | int) }}"
         state: present
       loop: "{{ uplink_conns }}"
+      loop_control:
+        index_var: loop_index
 
     - name: Configure FRR
       become: true
