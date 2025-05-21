@@ -31,7 +31,6 @@
             StrictHostKeyChecking no
         dest: /home/zuul/.ssh/config
 
-
     - name: Register mac addresses and sed them into the template
       delegate_to: "osp-undercloud-0"
       ansible.builtin.shell: |
@@ -50,3 +49,6 @@
         sed -i "s/controller0mac/$controller0mac/g" /home/zuul/fencing.yaml
         sed -i "s/controller1mac/$controller1mac/g" /home/zuul/fencing.yaml
         sed -i "s/controller2mac/$controller2mac/g" /home/zuul/fencing.yaml
+
+        # workaround
+        ssh osp-controller-$string-0 sudo dnf install -y pacemaker
