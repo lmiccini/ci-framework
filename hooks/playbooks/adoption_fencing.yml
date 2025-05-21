@@ -20,5 +20,5 @@
     - name: Run generate fencing
       delegate_to: "osp-undercloud-0"
       ansible.builtin.shell: |
-        source stackrc
+        source /home/zuul/stackrc
         openstack overcloud generate fencing --output /home/zuul/fencing.yaml /home/zuul/instackenv.json
