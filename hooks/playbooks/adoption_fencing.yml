@@ -17,8 +17,36 @@
 - name: Create fencing.yaml
   hosts: "{{ cifmw_target_host | default('localhost') }}"
   tasks:
-    - name: Run generate fencing
+    - name: Copy fencing.yaml template
+      delegate_to: "osp-undercloud-0"
+      ansible.builtin.template:
+        src: templates/fencing.yaml.j2
+        dest: /home/zuul/fencing.yaml
+
+    - name: Ignore ssh key
+      delegate_to: "osp-undercloud-0"
+      copy:
+        content: |
+          Host *
+            StrictHostKeyChecking no
+        dest: /home/zuul/.ssh/config
+
+
+    - name: Register mac addresses and sed them into the template
       delegate_to: "osp-undercloud-0"
       ansible.builtin.shell: |
-        source /home/zuul/stackrc
-        openstack overcloud generate fencing --output /home/zuul/fencing.yaml /home/zuul/instackenv.json
+        string=$(grep osp-compute /home/zuul/overcloud-deploy/overcloud/tripleo-ansible-inventory.yaml |head -1 |head -1|cut -d- -f3)
+        compute0mac=$(ssh osp-compute-$string-0 ip link show eth0 |grep ether |awk '{print $2}')
+        compute1mac=$(ssh osp-compute-$string-1 ip link show eth0 |grep ether |awk '{print $2}')
+        compute2mac=$(ssh osp-compute-$string-2 ip link show eth0 |grep ether |awk '{print $2}')
+        controller0mac=$(ssh osp-controller-$string-0 ip link show eth0 |grep ether |awk '{print $2}')
+        controller1mac=$(ssh osp-controller-$string-1 ip link show eth0 |grep ether |awk '{print $2}')
+        controller2mac=$(ssh osp-controller-$string-2 ip link show eth0 |grep ether |awk '{print $2}')
+
+        sed -i "s/compute0mac/$compute0mac/g" /home/zuul/fencing.yaml
+        sed -i "s/compute1mac/$compute1mac/g" /home/zuul/fencing.yaml
+        sed -i "s/compute2mac/$compute2mac/g" /home/zuul/fencing.yaml
+
+        sed -i "s/controller0mac/$controller0mac/g" /home/zuul/fencing.yaml
+        sed -i "s/controller1mac/$controller1mac/g" /home/zuul/fencing.yaml
+        sed -i "s/controller2mac/$controller2mac/g" /home/zuul/fencing.yaml
