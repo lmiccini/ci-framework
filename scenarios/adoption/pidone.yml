@@ -19,6 +19,7 @@ _osp_img_data: &osp_base_conf
   sha256_image_name: >-
     {{ osp_base_img_sha256 | default(cifmw_discovered_hash) }}
 
+cifmw_architecture_scenario: pidone-adoption
 
 libvirt_manager_patch_layout:
   vms:
