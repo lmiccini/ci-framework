@@ -51,4 +51,6 @@
         sed -i "s/controller2mac/$controller2mac/g" /home/zuul/fencing.yaml
 
         # workaround
-        ssh osp-controller-$string-0 sudo dnf install -y pacemaker
+        ssh osp-controller-$string-0 sudo dnf install -y pacemaker pcs fence-agents-compute fence-agents-ipmilan
+        ssh osp-controller-$string-1 sudo dnf install -y pacemaker pcs fence-agents-compute fence-agents-ipmilan
+        ssh osp-controller-$string-2 sudo dnf install -y pacemaker pcs fence-agents-compute fence-agents-ipmilan
