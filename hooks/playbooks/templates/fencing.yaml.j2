@@ -2,51 +2,51 @@ parameter_defaults:
   EnableFencing: true
   FencingConfig:
     devices:
-    - agent: fence_ipmilan
+    - agent: fence_redfish
       host_mac: controller0mac
       params:
-        ipaddr: 172.16.0.1
-        ipport: '6230'
-        lanplus: true
+        ipaddr: 192.168.122.100
+        ipport: 8000
         login: admin
         passwd: password
-    - agent: fence_ipmilan
+	uuid: controller0uuid
+    - agent: fence_redfish
       host_mac: controller1mac
       params:
-        ipaddr: 172.16.0.1
-        ipport: '6231'
-        lanplus: true
+        ipaddr: 192.168.122.100
+        ipport: 8000
         login: admin
         passwd: password
-    - agent: fence_ipmilan
+	uuid: controller1uuid
+    - agent: fence_redfish
       host_mac: controller2mac
       params:
-        ipaddr: 172.16.0.1
-        ipport: '6232'
-        lanplus: true
+        ipaddr: 192.168.122.100
+        ipport: 8000
         login: admin
         passwd: password
-    - agent: fence_ipmilan
+	uuid: controller2uuid
+    - agent: fence_redfish
       host_mac: compute0mac
       params:
-        ipaddr: 172.16.0.1
-        ipport: '6233'
-        lanplus: true
+        ipaddr: 192.168.122.100
+        ipport: 8000
         login: admin
         passwd: password
-    - agent: fence_ipmilan
+	uuid: compute0uuid
+    - agent: fence_redfish
       host_mac: compute1mac
       params:
-        ipaddr: 172.16.0.1
-        ipport: '6234'
-        lanplus: true
+        ipaddr: 192.168.122.100
+        ipport: 8000
         login: admin
         passwd: password
-    - agent: fence_ipmilan
+	uuid: compute1uuid
+    - agent: fence_redfish
       host_mac: compute2mac
       params:
-        ipaddr: 172.16.0.1
-        ipport: '6235'
-        lanplus: true
+        ipaddr: 192.168.122.100
+        ipport: 8000
         login: admin
         passwd: password
+	uuid: compute2uuid
