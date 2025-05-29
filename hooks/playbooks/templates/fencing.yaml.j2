@@ -5,48 +5,49 @@ parameter_defaults:
     - agent: fence_redfish
       host_mac: controller0mac
       params:
-        ipaddr: 192.168.122.98
-        ipport: 8000
+        ipaddr: 192.168.122.98:8000
+        ssl_insecure: 'true'
         login: admin
         passwd: password
-        uuid: controller0uuid
+        systems_uri: /redfish/v1/Systems/controller0uuid
     - agent: fence_redfish
       host_mac: controller1mac
       params:
-        ipaddr: 192.168.122.98
-        ipport: 8000
+        ipaddr: 192.168.122.98:8000
+        ssl_insecure: 'true'
         login: admin
         passwd: password
-        uuid: controller1uuid
+        systems_uri: /redfish/v1/Systems/controller1uuid
     - agent: fence_redfish
       host_mac: controller2mac
       params:
-        ipaddr: 192.168.122.98
-        ipport: 8000
+        ipaddr: 192.168.122.98:8000
+        ssl_insecure: 'true'
         login: admin
         passwd: password
-        uuid: controller2uuid
+        systems_uri: /redfish/v1/Systems/controller2uuid
     - agent: fence_redfish
       host_mac: compute0mac
       params:
-        ipaddr: 192.168.122.98
+        ipaddr: 192.168.122.98:8000
+        ssl_insecure: 'true'
         ipport: 8000
         login: admin
         passwd: password
-        uuid: compute0uuid
+        systems_uri: /redfish/v1/Systems/compute0uuid
     - agent: fence_redfish
       host_mac: compute1mac
       params:
-        ipaddr: 192.168.122.98
-        ipport: 8000
+        ipaddr: 192.168.122.98:8000
+        ssl_insecure: 'true'
         login: admin
         passwd: password
-        uuid: compute1uuid
+        systems_uri: /redfish/v1/Systems/compute1uuid
     - agent: fence_redfish
       host_mac: compute2mac
       params:
-        ipaddr: 192.168.122.98
-        ipport: 8000
+        ipaddr: 192.168.122.98:8000
+        ssl_insecure: 'true'
         login: admin
         passwd: password
-        uuid: compute2uuid
+        systems_uri: /redfish/v1/Systems/compute2uuid
