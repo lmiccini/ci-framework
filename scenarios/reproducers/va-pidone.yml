@@ -115,7 +115,6 @@ cifmw_libvirt_manager_configuration:
 
 ## devscript support for OCP deploy
 cifmw_devscripts_config_overrides:
-  base_domain: "example.com"
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
 
   # this needs to be overridden otherwise there won't be enough
