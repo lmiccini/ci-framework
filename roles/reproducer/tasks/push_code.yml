@@ -124,12 +124,8 @@
       delegate_to: localhost
       when:
         - item.src is abs or item.src is not match('.*:.*')
-      ansible.posix.synchronize:
-        src: "{{ item.src }}"
-        dest: "zuul@controller-0:{{ item.dest }}"
-        archive: true
-        recursive: true
-        delete: true
+      ansible.builtin.command:  # noqa: command-instead-of-module
+        cmd: "rsync -ar {{ item.src }} zuul@controller-0:{{ item.dest }}"
       loop: "{{ _cifmw_reproducer_all_repositories }}"
       loop_control:
         label: "{{ item.src | basename }}"
