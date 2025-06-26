@@ -1,4 +1,8 @@
 ---
+#
+# NOTE: Playbook migrated to: cifmw_setup/tasks/deploy-edpm.yml.
+# DO NOT EDIT THAT PLAYBOOK. IT WOULD BE REMOVED IN NEAR FUTURE.
+#
 - name: Deploy podified control plane
   hosts: "{{ cifmw_target_host | default('localhost') }}"
   gather_facts: false
@@ -102,7 +106,17 @@
             name: edpm_deploy
 
 - name: Deploy NFS server on target nodes
-  ansible.builtin.import_playbook: "nfs.yml"
+  become: true
+  hosts: "{{ groups[cifmw_nfs_target | default('computes')][0] | default([]) }}"
+  tasks:
+    - name: Run cifmw_nfs role
+      vars:
+        nftables_path: /etc/nftables
+        nftables_conf: /etc/sysconfig/nftables.conf
+      when:
+        - cifmw_edpm_deploy_nfs | default('false') | bool
+      ansible.builtin.import_role:
+        name: cifmw_nfs
 
 - name: Clear ceph target hosts facts to force refreshing in HCI deployments
   hosts: "{{ cifmw_ceph_target | default('computes')  }}"
@@ -163,7 +177,12 @@
 - name: Validations workflow
   # If we're doing an architecture deployment, we need to skip validations here.
   # Instead, they will be executed in the 06-deploy-architecture.yml playbook.
-  when:
-    - cifmw_architecture_scenario is not defined
-    - cifmw_execute_validations | default('false') | bool
-  ansible.builtin.import_playbook: validations.yml
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - name: Run validations
+      ansible.builtin.include_role:
+        name: validations
+      when:
+        - cifmw_architecture_scenario is not defined
+        - cifmw_execute_validations | default('false') | bool

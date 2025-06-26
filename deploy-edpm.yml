@@ -23,73 +23,134 @@
         name: cifmw_setup
         tasks_from: bootstrap.yml
 
-- name: Import infra entrypoint playbook
-  ansible.builtin.import_playbook: playbooks/02-infra.yml
-  tags:
-    - infra
+    - name: Run pre_infra hooks
+      vars:
+        step: pre_infra
+      ansible.builtin.import_role:
+        name: run_hook
+      tags:
+        - infra
 
-- name: Import package build playbook
-  ansible.builtin.import_playbook: playbooks/03-build-packages.yml
-  tags:
-    - build-packages
+- name: Prepare host virtualization
+  hosts: "{{ ('virthosts' in groups) | ternary('virthosts', cifmw_target_host | default('localhost') ) }}"
+  tasks:
+    - name: Run prepare host virtualization
+      vars:
+        step: pre_infra
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: host_virtualization.yml
+      tags:
+        - infra
 
-- name: Import containers build playbook
-  ansible.builtin.import_playbook: playbooks/04-build-containers.yml
-  tags:
-    - build-containers
+- name: Run cifmw_setup infra.yml
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  tasks:
+    - name: Prepare the platform
+      vars:
+        step: pre_infra
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: infra.yml
+      tags:
+        - infra
 
-- name: Import operators build playbook
-  ansible.builtin.import_playbook: playbooks/05-build-operators.yml
-  tags:
-    - build-operators
+- name: Build package playbook
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - name: Build package playbook
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: build_packages.yml
+      tags:
+        - build-packages
 
-- name: Import deploy edpm playbook
-  ansible.builtin.import_playbook: playbooks/06-deploy-edpm.yml
-  tags:
-    - edpm
+- name: Build container playbook
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - name: Build container playbook
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: build_containers.yml
+      tags:
+        - build-containers
+
+- name: Build operators playbook
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  environment:
+    PATH: "{{ cifmw_path }}"
+  tasks:
+    - name: Build operators playbook
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: build_operators.yml
+      tags:
+        - build-operators
+
+- name: Deploy EDPM
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - name: Deploy EDPM
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: deploy_edpm.yml
+      tags:
+        - edpm
+
+- name: Deploy NFS server on target nodes
+  become: true
+  hosts: "{{ groups[cifmw_nfs_target | default('computes')][0] | default([]) }}"
+  tasks:
+    - name: Run cifmw_nfs role
+      vars:
+        nftables_path: /etc/nftables
+        nftables_conf: /etc/sysconfig/nftables.conf
+      when:
+        - cifmw_edpm_deploy_nfs | default('false') | bool
+      ansible.builtin.import_role:
+        name: cifmw_nfs
+
+- name: Clear ceph target hosts facts to force refreshing in HCI deployments
+  hosts: "{{ cifmw_ceph_target | default('computes')  }}"
+  tasks:
+    # end_play will end only current play, not the main edpm-deploy.yml
+    - name: Early end if architecture deploy
+      when:
+        - cifmw_architecture_scenario is defined
+      ansible.builtin.meta: end_play
+
+    - name: Clear ceph target hosts facts
+      when: cifmw_edpm_deploy_hci | default('false') | bool
+      ansible.builtin.meta: clear_facts
+
+# TODO: replace this import_playbook with cifmw_ceph role
+- name: Deploy Ceph on target nodes
+  vars:
+    _deploy_ceph: >-
+      {{
+        (cifmw_edpm_deploy_hci | default('false') | bool) and
+        cifmw_architecture_scenario is undefined
+      }}
+    storage_network_range: 172.18.0.0/24
+    storage_mgmt_network_range: 172.20.0.0/24
+  ansible.builtin.import_playbook: playbooks/ceph.yml
+
+- name: Continue HCI deploy
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - name: Continue HCI deploy
+      ansible.builtin.import_role:
+        name: cifmw_setup
+        tasks_from: hci_deploy.yml
+      tags:
+        - edpm
 
 - name: Import VA deployment playbook
   ansible.builtin.import_playbook: playbooks/06-deploy-architecture.yml
   tags:
     - edpm
-
-- name: Import admin setup related playbook
-  ansible.builtin.import_playbook: playbooks/07-admin-setup.yml
-  tags:
-    - admin-setup
-
-- name: Import run test playbook
-  ansible.builtin.import_playbook: playbooks/08-run-tests.yml
-  vars:
-    pre_tests: "{{ (lookup('vars', 'pre_tempest', default=[])) }}"
-    post_tests: "{{ (lookup('vars', 'post_tempest', default=[])) }}"
-  tags:
-    - run-tests
-
-- name: Run compliance tests
-  ansible.builtin.import_playbook: playbooks/09-compliance.yml
-  tags:
-    - compliance
-
-- name: Run hooks and inject status flag
-  hosts: "{{ cifmw_target_host | default('localhost') }}"
-  gather_facts: false
-  tasks:
-    - name: Run pre_end hooks
-      tags:
-        - pre-end
-      vars:
-        step: pre_end
-      ansible.builtin.import_role:
-        name: run_hook
-
-    - name: Inject success flag
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/cifmw-success"
-        state: touch
-        mode: "0644"
-
-- name: Run log related tasks
-  ansible.builtin.import_playbook: playbooks/99-logs.yml
-  tags:
-    - logs

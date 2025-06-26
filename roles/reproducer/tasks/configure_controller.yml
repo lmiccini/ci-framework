@@ -350,12 +350,35 @@
             name: sushy_emulator
             tasks_from: verify.yml
 
+    - name: Check if cifmw_reproducer_src_dir is on localhost
+      delegate_to: localhost
+      ansible.builtin.stat:
+        path: "{{ cifmw_reproducer_src_dir }}"
+      register: cifmw_reproducer_src_dir_stat
+      run_once: true
+
+    - name: Sync local repositories to other hosts if present
+      delegate_to: localhost
+      ansible.posix.synchronize:
+        src: "{{ cifmw_reproducer_src_dir }}/"
+        dest: "zuul@{{ item }}:{{ cifmw_reproducer_src_dir }}"
+        archive: true
+        recursive: true
+      loop: "{{ groups['controllers'] }}"
+      when:
+        - cifmw_reproducer_src_dir_stat.stat.exists
+        - cifmw_reproducer_src_dir_stat.stat.isdir
+
     - name: Install ansible dependencies
       register: _async_dep_install
       async: 600  # 10 minutes should be more than enough
       poll: 0
       ansible.builtin.pip:
-        requirements: https://raw.githubusercontent.com/openstack-k8s-operators/ci-framework/main/common-requirements.txt
+        requirements: "{{ have_local | ternary(local, remote) }}"
+      vars:
+        have_local: "{{ cifmw_reproducer_src_dir_stat.stat.exists and cifmw_reproducer_src_dir_stat.stat.isdir }}"
+        local: "{{ ansible_user_dir }}/src/github.com/openstack-k8s-operators/ci-framework/common-requirements.txt"
+        remote: https://raw.githubusercontent.com/openstack-k8s-operators/ci-framework/main/common-requirements.txt
 
     - name: Inject most of the cifmw_ parameters passed to the reproducer run
       tags:

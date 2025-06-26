@@ -2,6 +2,20 @@
 - name: Manage unique ID
   ansible.builtin.import_playbook: playbooks/unique-id.yml
 
+- name: Reboot controller-0 to make sure there are no running deployments
+  hosts: controller-0
+  gather_facts: false
+  tasks:
+    - name: Reboot controller-0
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+      become: true
+
+    - name: Wait for controller-0 to come back online
+      ansible.builtin.wait_for_connection:
+        timeout: 600
+        delay: 10
+
 - name: Reproducer prepare play
   hosts: "{{ cifmw_target_host | default('localhost') }}"
   gather_facts: true
@@ -100,3 +114,13 @@
       delegate_to: controller-0
       ansible.builtin.command:
         cmd: "/home/zuul/deploy-architecture.sh {{ cifmw_deploy_architecture_args | default('') }}"
+
+    - name: Run post deployment if instructed to
+      when:
+        - cifmw_post_deployment | default(true) | bool
+      no_log: "{{ cifmw_nolog | default(true) | bool }}"
+      async: "{{ 7200 + cifmw_test_operator_timeout | default(7200) }}"  # 2h should be enough to deploy EDPM and rest for tests.
+      poll: 20
+      delegate_to: controller-0
+      ansible.builtin.command:
+        cmd: "/home/zuul/post_deployment.sh {{ cifmw_post_deploy_args | default('') }}"
