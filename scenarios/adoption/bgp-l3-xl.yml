@@ -41,6 +41,10 @@ libvirt_manager_patch_layout:
       nets:
         - ocpbm
         - r0_tr
+      spineleafnets:
+        -  # rack0 - undercloud
+          - "l00-node4"
+          - "l01-node4"
     osp-r0-controller:
       <<: *osp_base_conf
       amount: 1
@@ -212,6 +216,7 @@ libvirt_manager_patch_layout:
           - "l00-ocp2"
           - "l00-ocp3"
           - "l00-node3"
+          - "l00-node4"
         -  # rack0 - leaf01
           - "l01-s0"
           - "l01-s1"
@@ -223,6 +228,7 @@ libvirt_manager_patch_layout:
           - "l01-ocp2"
           - "l01-ocp3"
           - "l01-node3"
+          - "l01-node4"
         -  # rack1 - leaf10
           - "l10-s0"
           - "l10-s1"
