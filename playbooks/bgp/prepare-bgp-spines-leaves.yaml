@@ -428,6 +428,46 @@
       loop_control:
         index_var: loop_index
 
+    - name: Configure downlink leaf connections on racks 0, 1 and 2 - vlan 10
+      become: true
+      vars:
+        leaf_ds_ip4: >-
+          100.{{ 64 + (leaf_id | int) }}.{{ rack_id + 10 }}.{{ 1 + 4 * (loop_index | int) }}
+      when: (rack_id | int) != 3
+      community.general.nmcli:
+        autoconnect: true
+        conn_name: "eth{{ 3+ (loop_index | int) }}.10"
+        ip4: "{{ leaf_ds_ip4 }}/30"
+        vlanid: 10
+        vlandev: "eth{{ 3+ (loop_index | int) }}"
+        type: vlan
+        method4: manual
+        method6: link-local
+        state: present
+      loop: "{{ leaf_downlink_conns }}"
+      loop_control:
+        index_var: loop_index
+
+    - name: Configure downlink leaf connections on racks 0, 1 and 2 - vlan 20
+      become: true
+      vars:
+        leaf_ds_ip4: >-
+          100.{{ 64 + (leaf_id | int) }}.{{ rack_id + 20 }}.{{ 1 + 4 * (loop_index | int) }}
+      when: (rack_id | int) != 3
+      community.general.nmcli:
+        autoconnect: true
+        conn_name: "eth{{ 3+ (loop_index | int) }}.20"
+        ip4: "{{ leaf_ds_ip4 }}/30"
+        vlanid: 20
+        type: vlan
+        vlandev: "eth{{ 3+ (loop_index | int) }}"
+        method4: manual
+        method6: link-local
+        state: present
+      loop: "{{ leaf_downlink_conns }}"
+      loop_control:
+        index_var: loop_index
+
     - name: Configure uplink leaf connections
       become: true
       community.general.nmcli:

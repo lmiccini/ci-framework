@@ -13,6 +13,77 @@ debug bgp neighbor-events
 debug bgp updates
 debug bgp update-groups
 
+vrf openstack-vrf1
+  rd 100:1
+  route-target export 100:1
+  route-target import 100:1
+
+vrf openstack-vrf2
+  rd 200:1
+  route-target export 200:1
+  route-target import 200:1
+
+router bgp 200 vrf openstack-vrf2
+  bgp log-neighbor-changes
+  bgp graceful-shutdown
+
+  bgp graceful-restart
+  bgp graceful-restart notification
+  bgp graceful-restart restart-time 60
+  bgp graceful-restart preserve-fw-state
+  ! bgp long-lived-graceful-restart stale-time 15
+
+  neighbor downlink20 peer-group
+  neighbor downlink20 remote-as internal
+  neighbor downlink20 bfd
+  neighbor downlink20 bfd profile tripleo
+  neighbor downlink20 password f00barZ
+  ! neighbor downlink20 capability extended-nexthop
+{% for iface in downlink_interfaces %}
+  neighbor {{iface}}:20 interface peer-group downlink
+{% endfor %}
+
+  neighbor uplink peer-group
+  neighbor uplink remote-as external
+  neighbor uplink bfd
+  neighbor uplink bfd profile tripleo
+  ! neighbor uplink capability extended-nexthop
+{% for iface in uplink_ifs %}
+  neighbor {{iface}} interface peer-group uplink
+{% endfor %}
+
+
+
+router bgp 100 vrf openstack-vrf1
+  bgp log-neighbor-changes
+  bgp graceful-shutdown
+
+  bgp graceful-restart
+  bgp graceful-restart notification
+  bgp graceful-restart restart-time 60
+  bgp graceful-restart preserve-fw-state
+  ! bgp long-lived-graceful-restart stale-time 15
+
+  neighbor downlink10 peer-group
+  neighbor downlink10 remote-as internal
+  neighbor downlink10 bfd
+  neighbor downlink10 bfd profile tripleo
+  neighbor downlink10 password f00barZ
+  ! neighbor downlink10 capability extended-nexthop
+{% for iface in downlink_interfaces %}
+  neighbor {{iface}}:10 interface peer-group downlink
+{% endfor %}
+
+  neighbor uplink peer-group
+  neighbor uplink remote-as external
+  neighbor uplink bfd
+  neighbor uplink bfd profile tripleo
+  ! neighbor uplink capability extended-nexthop
+{% for iface in uplink_ifs %}
+  neighbor {{iface}} interface peer-group uplink
+{% endfor %}
+
+
 router bgp 64999
   bgp log-neighbor-changes
   bgp graceful-shutdown
