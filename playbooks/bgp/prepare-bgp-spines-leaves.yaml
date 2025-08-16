@@ -428,7 +428,23 @@
       loop_control:
         index_var: loop_index
 
-    - name: Configure downlink leaf connections on racks 0, 1 and 2 - vlan 10
+    - name: Configure openstack-vrf1 interface
+      community.general.nmcli:
+        type: vrf
+        ifname: openstack-vrf1
+        table: 100
+        state: present
+        conn_name: openstack-vrf1
+
+    - name: Configure openstack-vrf2 interface
+      community.general.nmcli:
+        type: vrf
+        ifname: openstack-vrf2
+        table: 200
+        state: present
+        conn_name: openstack-vrf2
+
+    - name: Configure downlink leaf connections on racks 0, 1 and 2 - vlan 10 - vrf openstack-vrf1
       become: true
       vars:
         leaf_ds_ip4: >-
@@ -444,11 +460,13 @@
         method4: manual
         method6: link-local
         state: present
+        slave_type: vrf
+        master: openstack-vrf1
       loop: "{{ leaf_downlink_conns }}"
       loop_control:
         index_var: loop_index
 
-    - name: Configure downlink leaf connections on racks 0, 1 and 2 - vlan 20
+    - name: Configure downlink leaf connections on racks 0, 1 and 2 - vlan 20 - vrf openstack-vrf2
       become: true
       vars:
         leaf_ds_ip4: >-
@@ -464,6 +482,8 @@
         method4: manual
         method6: link-local
         state: present
+        slave_type: vrf
+        master: openstack-vrf2
       loop: "{{ leaf_downlink_conns }}"
       loop_control:
         index_var: loop_index
