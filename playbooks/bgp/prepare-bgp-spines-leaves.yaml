@@ -429,6 +429,7 @@
         index_var: loop_index
 
     - name: Configure openstack-vrf1 interface
+      become: true
       community.general.nmcli:
         type: vrf
         ifname: openstack-vrf1
@@ -437,6 +438,7 @@
         conn_name: openstack-vrf1
 
     - name: Configure openstack-vrf2 interface
+      become: true
       community.general.nmcli:
         type: vrf
         ifname: openstack-vrf2
