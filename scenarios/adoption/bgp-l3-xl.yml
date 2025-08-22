@@ -312,7 +312,8 @@ cifmw_networking_mapper_interfaces_info_translations:
   r2_tr:
     - ctlplaner2
 
-cifmw_networking_definition:
+#cifmw_networking_definition:
+networking_mapper_definition_patch:
   networks:
     ctlplane:
       network: "192.168.125.0/24"
