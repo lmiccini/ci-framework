@@ -65,7 +65,8 @@
              _tripleo_nodes | default([]) +
              group.value
           }}
-      loop: "{{ _vm_groups | dict2items }}"
+      #loop: "{{ _vm_groups | dict2items }}"
+      loop: "{{ _vm_groups | dict2items | selectattr('key', 'match', '^osp')}}"
       loop_control:
         loop_var: group
         label: "{{ group.key }}"
