@@ -466,7 +466,7 @@ networking_mapper_definition_patch:
     osp-underclouds:
       network-template:
         range:
-          start: 100
+          start: 95
           length: 1
       networks:
         ctlplaner0: {}
