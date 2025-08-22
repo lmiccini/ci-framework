@@ -370,31 +370,39 @@ networking_mapper_definition_patch:
       vlan: 99
       mtu: 1500
 
+  #ensure ranges do not collide even if we don't create these vms
   group-templates:
     r0-computes:
       network-template:
-        # ensure this range does not collide with osp-computes one, even if we
-        # don't create any vms for the compute group (the computes for
-        # greenfield jobs) we need to make sure their ip ranges do not overlap
         range:
           start: 200
-          length: 1
+          length: 5
     r1-computes:
       network-template:
-        # ensure this range does not collide with osp-computes one, even if we
-        # don't create any vms for the compute group (the computes for
-        # greenfield jobs) we need to make sure their ip ranges do not overlap
         range:
-          start: 200
-          length: 1
+          start: 205
+          length: 5
     r2-computes:
      network-template:
-       # ensure this range does not collide with osp-computes one, even if we
-       # don't create any vms for the compute group (the computes for
-       # greenfield jobs) we need to make sure their ip ranges do not overlap
        range:
-         start: 200
-         length: 1
+         start: 210
+         length: 5
+    r0-networkers:
+      network-template:
+        range:
+          start: 215
+          length: 5
+    r1-networkers:
+      network-template:
+        range:
+          start: 220
+          length: 5
+    r2-networkers:
+      network-template:
+        range:
+          start: 225
+          length: 5
+
     osp-r0-controllers:
       network-template:
         range:
