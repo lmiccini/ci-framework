@@ -33,14 +33,20 @@ allovercloud:
     {% endfor %}
 computes:
   children:
-    {{ cifmw_adoption_osp_deploy_scenario.roles_groups_map['osp-computes'] }}: {}
+    {% for group, role in cifmw_adoption_osp_deploy_scenario.roles_groups_map.items() %}
+    {% if 'osp' in group and 'compute' in group %}
+    {{ role }}: {}
+    {% endif %}
+    {% endfor %}
 {{ _overcloud_name }}:
   hosts:
-    {% for group in ['osp-controllers', 'osp-computes'] %}
+    {% for group, _ in cifmw_adoption_osp_deploy_scenario.roles_groups_map.items() %}
+    {% if 'osp' in group and ('compute' in group or 'controller' in group) %}
     {% for node in _vm_groups[group] %}
     {% set node_nets = cifmw_networking_env_definition.instances[node] %}
     {{ node }}:
       ansible_user: tripleo-admin
       ansible_host: {{ node_nets.networks.ctlplane[ip_version|default('ip_v4')] }}
     {% endfor %}
+    {% endif %}
     {% endfor %}
