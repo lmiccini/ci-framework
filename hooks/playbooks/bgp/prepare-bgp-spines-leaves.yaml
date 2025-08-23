@@ -318,8 +318,9 @@
 
     - name: Delete ens3 interface
       become: true
-      shell:
-        cmd: sudo nmcli c delete ens3
+      community.general.nmcli:
+        conn_name: ens3
+        state: absent
 
     - name: Build downlink connection list
       vars:
@@ -552,9 +553,9 @@
 
     - name: Remove default route obtained via DHCP from leaves in order to apply BGP
       become: true
-      ansible.builtin.shell:
+      ansible.builtin.shell: # noqa risky-shell-pipe
         cmd: >
-          set -o pipefail && ip route show default |
+          ip route show default |
           grep "proto dhcp" |
           xargs -r ip route del
       changed_when: false
