@@ -507,6 +507,6 @@ networking_mapper_definition_patch:
       networks:
         #ctlplaner0: {}
         ctlplane: {}
-        internalapi:
-          #trunk-parent: ctlplaner0
-          trunk-parent: ctlplane
+        #internalapi:
+        #  #trunk-parent: ctlplaner0
+        #  trunk-parent: ctlplane
