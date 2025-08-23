@@ -1,4 +1,53 @@
 ---
+- name: start vms
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: start vms
+      community.libvirt.virt:
+        name: '{{ item }}'
+        state: running
+      loop:
+        - cifmw-leaf-0
+        - cifmw-leaf-1
+        - cifmw-leaf-2
+        - cifmw-leaf-3
+        - cifmw-leaf-4
+        - cifmw-leaf-5
+        - cifmw-spine-0
+        - cifmw-spine-1
+        - cifmw-router-0
+
+    - ansible.builtin.add_host:
+        name: '{{ item }}'
+        group: leafs
+      loop:
+        - leaf-0.utility
+        - leaf-1.utility
+        - leaf-2.utility
+        - leaf-3.utility
+        - leaf-4.utility
+        - leaf-5.utility
+
+    - ansible.builtin.add_host:
+        name: '{{ item }}'
+        group: spines
+      loop:
+        - spine-0.utility
+        - spine-1.utility
+
+    - ansible.builtin.add_host:
+        name: router-0.utility
+        group: routers
+
+    - ansible.builtin.wait_for:
+        port: 22
+        host: router-0.utility
+        search_regex: OpenSSH
+        delay: 10
+        timeout: 120
+      delegate_to: localhost
+
 - name: Common spines and leaves configuration
   hosts: "spines,leafs{{ router_bool | default(false) | ternary(',routers', '') }}"
   tasks:
@@ -266,6 +315,11 @@
             1 if "Wired connection 1" == (spine_eth0_conn.stdout | trim)
             else 0
           }}
+
+    - name: Delete ens3 interface
+      become: true
+      shell:
+        cmd: sudo nmcli c delete ens3
 
     - name: Build downlink connection list
       vars:
