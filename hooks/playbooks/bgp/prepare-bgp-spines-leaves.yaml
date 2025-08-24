@@ -1,8 +1,8 @@
 ---
-#- name: start vms
-#  hosts: localhost
-#  become: yes
-#  tasks:
+- name: start vms
+  hosts: localhost
+  become: yes
+  tasks:
 #    - name: start vms
 #      community.libvirt.virt:
 #        name: '{{ item }}'
@@ -18,27 +18,27 @@
 #        - cifmw-spine-1
 #        - cifmw-router-0
 #
-#    - ansible.builtin.add_host:
-#        name: '{{ item }}'
-#        group: leafs
-#      loop:
-#        - leaf-0.utility
-#        - leaf-1.utility
-#        - leaf-2.utility
-#        - leaf-3.utility
-#        - leaf-4.utility
-#        - leaf-5.utility
-#
-#    - ansible.builtin.add_host:
-#        name: '{{ item }}'
-#        group: spines
-#      loop:
-#        - spine-0.utility
-#        - spine-1.utility
-#
-#    - ansible.builtin.add_host:
-#        name: router-0.utility
-#        group: routers
+    - ansible.builtin.add_host:
+        name: '{{ item }}'
+        group: leafs
+      loop:
+        - leaf-0.utility
+        - leaf-1.utility
+        - leaf-2.utility
+        - leaf-3.utility
+        - leaf-4.utility
+        - leaf-5.utility
+
+    - ansible.builtin.add_host:
+        name: '{{ item }}'
+        group: spines
+      loop:
+        - spine-0.utility
+        - spine-1.utility
+
+    - ansible.builtin.add_host:
+        name: router-0.utility
+        group: routers
 #
 #    - ansible.builtin.wait_for:
 #        port: 22
