@@ -215,7 +215,7 @@
       loop_control:
         loop_var: overcloud_vm
 
-    - name: Generate os-net-config file for overcloud nodes
+    - name: Generate os-net-config file for overcloud nodes (non bgp)
       become: true
       delegate_to: "{{ overcloud_vm }}"
       vars:
@@ -233,6 +233,27 @@
       loop: "{{ _tripleo_nodes_stack }}"
       loop_control:
         loop_var: overcloud_vm
+      when: not bgp
+
+    - name: Generate os-net-config file for overcloud nodes (bgp)
+      become: true
+      delegate_to: "{{ overcloud_vm }}"
+      vars:
+        _node_net: "{{ cifmw_networking_env_definition.instances[overcloud_vm] }}"
+        _ctlplane_ip: "{{ _node_net.networks.ctlplane[ip_version|default('ip_v4')] }}"
+        _ctlplane_net: "{{ cifmw_networking_env_definition.networks.ctlplane }}"
+        _dns_server: "{{ _ctlplane_net.[dns_version|default('dns_v4')] }}"
+        _gateway_ip: "{{ _ctlplane_net[gw_version|default('gw_v4')] }}"
+        _interface_mtu: "{{ _node_net.networks.ctlplane.mtu }}"
+        _ctlplane_cidr: "{{ _node_net.networks.ctlplane[prefix_length_version|default('prefix_length_v4')] }}"
+      ansible.builtin.template:
+        src: "os_net_config_overcloud.yml_bgp.j2"
+        dest: /etc/os-net-config/tripleo_config.yaml
+        mode: "0644"
+      loop: "{{ _tripleo_nodes_stack }}"
+      loop_control:
+        loop_var: overcloud_vm
+      when: bgp
 
     - name: Configure network interfaces for overcloud nodes
       become: true
