@@ -34,144 +34,155 @@
   register: _original_config_download
   delegate_to: "localhost"
 
-- name: Generate config download file
-  vars:
-    _ctlplane_net: "{{ cifmw_networking_env_definition.networks.ctlplane }}"
-    _hostname_map_translation: >-
-      {{
-        cifmw_adoption_osp_deploy_scenario.hostname_groups_map |
-        ansible.utils.keep_keys(target=_stack.stack_nodes)
-      }}
+- name: Copy config download file as is (bgp)
+  when: bgp
+  delegate_to: "osp-undercloud-0"
+  copy:
+    content: "{{ _original_config_download['content'] |b64decode | from_yaml | to_nice_yaml(indent=2, sort_keys=false) }}"
+    dest: /home/zuul/config_download_overcloud.yaml
+
+- name: Gen config download (non bgp)
+  when: not bgp
   block:
-    - name: Gather overcloud tripleo nodes and generate Hostnamemap field
-      when: group.key is in _hostname_map_translation
-      vars:
-        _tripleo_name: "{{ _hostname_map_translation[group.key] }}"
-        _group_nodes: >-
-          {%- set hosts = {} -%}
-          {%- for node in group.value -%}
-            {%- set key = _tripleo_name ~ '-' ~ loop.index0 | string  -%}
-            {%- set _ = hosts.update({key: node}) -%}
-          {%- endfor -%}
-          {{ hosts }}
-      ansible.builtin.set_fact:
-        _hostname_map: >-
-          {{
-            _hostname_map | default({}) |
-            combine(_group_nodes)
-          }}
-        _tripleo_nodes: >-
-          {{
-             _tripleo_nodes | default([]) +
-             group.value
-          }}
-      loop: "{{ _vm_groups | dict2items }}"
-      loop_control:
-        loop_var: group
-        label: "{{ group.key }}"
+  - name: Generate config download file
+    vars:
+      _ctlplane_net: "{{ cifmw_networking_env_definition.networks.ctlplane }}"
+      _hostname_map_translation: >-
+        {{
+          cifmw_adoption_osp_deploy_scenario.hostname_groups_map |
+          ansible.utils.keep_keys(target=_stack.stack_nodes)
+        }}
+    block:
+      - name: Gather overcloud tripleo nodes and generate Hostnamemap field
+        when: group.key is in _hostname_map_translation
+        vars:
+          _tripleo_name: "{{ _hostname_map_translation[group.key] }}"
+          _group_nodes: >-
+            {%- set hosts = {} -%}
+            {%- for node in group.value -%}
+              {%- set key = _tripleo_name ~ '-' ~ loop.index0 | string  -%}
+              {%- set _ = hosts.update({key: node}) -%}
+            {%- endfor -%}
+            {{ hosts }}
+        ansible.builtin.set_fact:
+          _hostname_map: >-
+            {{
+              _hostname_map | default({}) |
+              combine(_group_nodes)
+            }}
+          _tripleo_nodes: >-
+            {{
+               _tripleo_nodes | default([]) +
+               group.value
+            }}
+        #loop: "{{ _vm_groups | dict2items }}"
+        loop: "{{ _vm_groups | dict2items | selectattr('key', 'match', '^osp')}}"
+        loop_control:
+          loop_var: group
+          label: "{{ group.key }}"
 
-    - name: Override network version protocol vars to ipv6
-      ansible.builtin.set_fact:
-        network_version: network_v6
-        ip_version: ip_v6
-        dns_version: dns_v6
-        gw_version: gw_v6
-        prefix_length_version: prefix_length_v6
-      when: cifmw_networking_env_definition.networks.ctlplane.network_v6 is defined
+      - name: Override network version protocol vars to ipv6
+        ansible.builtin.set_fact:
+          network_version: network_v6
+          ip_version: ip_v6
+          dns_version: dns_v6
+          gw_version: gw_v6
+          prefix_length_version: prefix_length_v6
+        when: cifmw_networking_env_definition.networks.ctlplane.network_v6 is defined
 
-    - name: Generate DeployedServerPortMap field
-      vars:
-        _node_instance_net: "{{ cifmw_networking_env_definition.instances[node] }}"
-        _key_name: "{{ node }}-ctlplane"
-        _ctlplane_ip: "{{ _node_instance_net.networks.ctlplane[ip_version|default('ip_v4')] }}"
-        _server_port: >-
-          {%- set port = {_key_name: {}} -%}
-          {%- set _ = port[_key_name].update({
-            'fixed_ips': [
-              { 'ip_address': _ctlplane_ip }
-            ],
-            'subnets': [
-              {'cidr': _ctlplane_net[network_version|default("network_v4")]}
-            ],
-            'network': {
-              'tags': [ _ctlplane_net[network_version|default("network_v4")] ]
-            }}) -%}
-          {{ port }}
-      ansible.builtin.set_fact:
-        _deployedserverport_map: >-
-          {{
-            _deployedserverport_map | default({}) |
-            combine(_server_port, recursive=true)
-          }}
-      loop: "{{ _tripleo_nodes }}"
-      loop_control:
-        loop_var: node
-        label: "{{ node }}"
+      - name: Generate DeployedServerPortMap field
+        vars:
+          _node_instance_net: "{{ cifmw_networking_env_definition.instances[node] }}"
+          _key_name: "{{ node }}-ctlplane"
+          _ctlplane_ip: "{{ _node_instance_net.networks.ctlplane[ip_version|default('ip_v4')] }}"
+          _server_port: >-
+            {%- set port = {_key_name: {}} -%}
+            {%- set _ = port[_key_name].update({
+              'fixed_ips': [
+                { 'ip_address': _ctlplane_ip }
+              ],
+              'subnets': [
+                {'cidr': _ctlplane_net[network_version|default("network_v4")]}
+              ],
+              'network': {
+                'tags': [ _ctlplane_net[network_version|default("network_v4")] ]
+              }}) -%}
+            {{ port }}
+        ansible.builtin.set_fact:
+          _deployedserverport_map: >-
+            {{
+              _deployedserverport_map | default({}) |
+              combine(_server_port, recursive=true)
+            }}
+        loop: "{{ _tripleo_nodes }}"
+        loop_control:
+          loop_var: node
+          label: "{{ node }}"
 
-    - name: Generate NodePortMap field
-      vars:
-        _node_instance_net: "{{ cifmw_networking_env_definition.instances[node] }}"
-        _node_port: >
-          {%- set nodeport = {node: {}} -%}
-          {% for network, net_info in _node_instance_net.networks.items() if network != 'ocpbm' %}
-            {%- set subnet = cifmw_networking_env_definition.networks[network][network_version|default("network_v4")] -%}
-            {%- set network_name = ['storage_mgmt'] if network == 'storagemgmt' else [network] -%}
-            {%- set network_name = ['internal_api'] if network == 'internalapi' else [network] -%}
-            {%- set _ = nodeport[node].update(
-              {
-                network_name[0]: {
-                'ip_address': net_info[ip_version|default("ip_v4")],
-                'ip_address_uri': net_info[ip_version|default("ip_v4")],
-                'ip_subnet': subnet
+      - name: Generate NodePortMap field
+        vars:
+          _node_instance_net: "{{ cifmw_networking_env_definition.instances[node] }}"
+          _node_port: >
+            {%- set nodeport = {node: {}} -%}
+            {% for network, net_info in _node_instance_net.networks.items() if network != 'ocpbm' %}
+              {%- set subnet = cifmw_networking_env_definition.networks[network][network_version|default("network_v4")] -%}
+              {%- set network_name = ['storage_mgmt'] if network == 'storagemgmt' else [network] -%}
+              {%- set network_name = ['internal_api'] if network == 'internalapi' else [network] -%}
+              {%- set _ = nodeport[node].update(
+                {
+                  network_name[0]: {
+                  'ip_address': net_info[ip_version|default("ip_v4")],
+                  'ip_address_uri': net_info[ip_version|default("ip_v4")],
+                  'ip_subnet': subnet
+                  }
                 }
-              }
-          ) -%}
-          {%- endfor -%}
-          {{ nodeport }}
-      ansible.builtin.set_fact:
-        _nodeport_map: >-
-          {{
-            _nodeport_map | default({}) |
-            combine(_node_port, recursive=true)
-          }}
-      loop: "{{ _tripleo_nodes }}"
-      loop_control:
-        loop_var: node
-        label: "{{ node }}"
+            ) -%}
+            {%- endfor -%}
+            {{ nodeport }}
+        ansible.builtin.set_fact:
+          _nodeport_map: >-
+            {{
+              _nodeport_map | default({}) |
+              combine(_node_port, recursive=true)
+            }}
+        loop: "{{ _tripleo_nodes }}"
+        loop_control:
+          loop_var: node
+          label: "{{ node }}"
 
-    - name: Generate CtlplaneNetworkAttributes field
-      vars:
-        _cloud_domain: "{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"
-        _dns_server: >-
-          {{
-            (_ctlplane_net[dns_version|default("dns_v4")] | length > 0) |
-             ternary(_ctlplane_net[dns_version|default("dns_v4")], _ctlplane_net[gw_version|default("gw_v4")])
-          }}
-      ansible.builtin.set_fact:
-        _ctlplanenet_attributes:
-          network:
-            dns_domain: "{{ _cloud_domain }}"
-            mtu: "{{ _ctlplane_net.mtu }}"
-          subnets:
-            ctlplane-subnet:
-              dns_nameservers: "{{ _dns_server }}"
-              gateway_ip: "{{ _ctlplane_net[gw_version|default('gw_v4')] }}"
+      - name: Generate CtlplaneNetworkAttributes field
+        vars:
+          _cloud_domain: "{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"
+          _dns_server: >-
+            {{
+              (_ctlplane_net[dns_version|default("dns_v4")] | length > 0) |
+               ternary(_ctlplane_net[dns_version|default("dns_v4")], _ctlplane_net[gw_version|default("gw_v4")])
+            }}
+        ansible.builtin.set_fact:
+          _ctlplanenet_attributes:
+            network:
+              dns_domain: "{{ _cloud_domain }}"
+              mtu: "{{ _ctlplane_net.mtu }}"
+            subnets:
+              ctlplane-subnet:
+                dns_nameservers: "{{ _dns_server }}"
+                gateway_ip: "{{ _ctlplane_net[gw_version|default('gw_v4')] }}"
 
-    - name: Create new config download file
-      vars:
-        _config_download: >-
-          {{
-            _original_config_download['content'] |
-            b64decode | from_yaml
-          }}
-        _new_config_download_fields:
-          parameter_defaults:
-            HostnameMap: "{{ _hostname_map }}"
-            DeployedServerPortMap: "{{ _deployedserverport_map }}"
-            NodePortMap: "{{ _nodeport_map }}"
-            CtlplaneNetworkAttributes: "{{ _ctlplanenet_attributes }}"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/config_download_{{ _stack.stackname }}.yaml"
-        content: "{{ _config_download | combine(_new_config_download_fields, recursive=true) | to_nice_yaml(indent=2, sort_keys=false) }}"
-        mode: "0644"
-      delegate_to: "osp-undercloud-0"
+      - name: Create new config download file
+        vars:
+          _config_download: >-
+            {{
+              _original_config_download['content'] |
+              b64decode | from_yaml
+            }}
+          _new_config_download_fields:
+            parameter_defaults:
+              HostnameMap: "{{ _hostname_map }}"
+              DeployedServerPortMap: "{{ _deployedserverport_map }}"
+              NodePortMap: "{{ _nodeport_map }}"
+              CtlplaneNetworkAttributes: "{{ _ctlplanenet_attributes }}"
+        ansible.builtin.copy:
+          dest: "{{ ansible_user_dir }}/config_download_{{ _stack.stackname }}.yaml"
+          content: "{{ _config_download | combine(_new_config_download_fields, recursive=true) | to_nice_yaml(indent=2, sort_keys=false) }}"
+          mode: "0644"
+        delegate_to: "osp-undercloud-0"

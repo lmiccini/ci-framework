@@ -215,7 +215,7 @@
       loop_control:
         loop_var: overcloud_vm
 
-    - name: Generate os-net-config file for overcloud nodes
+    - name: Generate os-net-config file for overcloud nodes (non bgp)
       become: true
       delegate_to: "{{ overcloud_vm }}"
       vars:
@@ -233,6 +233,82 @@
       loop: "{{ _tripleo_nodes_stack }}"
       loop_control:
         loop_var: overcloud_vm
+      when: not bgp
+
+    - name: Generate os-net-config file for overcloud nodes (bgp)
+      become: true
+      delegate_to: "{{ overcloud_vm }}"
+      vars:
+        _node_net: "{{ cifmw_networking_env_definition.instances[overcloud_vm] }}"
+        _ctlplane_ip: "{{ _node_net.networks.ctlplane[ip_version|default('ip_v4')] }}"
+        _ctlplane_net: "{{ cifmw_networking_env_definition.networks.ctlplane }}"
+        _dns_server: "{{ _ctlplane_net.[dns_version|default('dns_v4')] }}"
+        _gateway_ip: "{{ _ctlplane_net[gw_version|default('gw_v4')] }}"
+        _interface_mtu: "{{ _node_net.networks.ctlplane.mtu }}"
+        _ctlplane_cidr: "{{ _node_net.networks.ctlplane[prefix_length_version|default('prefix_length_v4')] }}"
+        vms:
+          osp-r0-compute-0:
+            ctlplane: '192.168.125.100'
+            left: '100.64.0.2'
+            right: '100.65.0.2'
+            main: '99.99.0.2'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0004'
+          osp-r0-compute-1:
+            ctlplane: '192.168.125.101'
+            left: '100.64.0.6'
+            right: '100.65.0.6'
+            main: '99.99.0.6'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0005'
+          osp-r1-compute-0:
+            ctlplane: '192.168.125.110'
+            left: '100.64.1.2'
+            right: '100.65.1.2'
+            main: '99.99.1.2'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0006'
+          osp-r1-compute-1:
+            ctlplane: '192.168.125.111'
+            left: '100.64.1.6'
+            right: '100.65.1.6'
+            main: '99.99.1.6'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0007'
+          osp-r2-compute-0:
+            ctlplane: '192.168.125.120'
+            left: '100.64.2.2'
+            right: '100.65.2.2'
+            main: '99.99.2.2'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0008'
+          osp-r2-compute-1:
+            ctlplane: '192.168.125.121'
+            left: '100.64.2.6'
+            right: '100.65.2.6'
+            main: '99.99.2.6'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0009'
+          osp-r0-controller-0:
+            ctlplane: '192.168.125.140'
+            left: '100.64.0.30'
+            right: '100.65.0.30'
+            main: '99.99.0.29'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0001'
+          osp-r1-controller-0:
+            ctlplane: '192.168.125.145'
+            left: '100.64.1.30'
+            right: '100.65.1.30'
+            main: '99.99.1.29'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0002'
+          osp-r2-controller-0:
+            ctlplane: '192.168.125.148'
+            left: '100.64.2.30'
+            right: '100.65.2.30'
+            main: '99.99.2.29'
+            main6: 'f00d:f00d:f00d:f00d:f00d:f00d:f00d:0003'
+      ansible.builtin.template:
+        src: "os_net_config_overcloud_bgp.yml.j2"
+        dest: /etc/os-net-config/tripleo_config.yaml
+        mode: "0644"
+      loop: "{{ _tripleo_nodes_stack }}"
+      loop_control:
+        loop_var: overcloud_vm
+      when: bgp
 
     - name: Configure network interfaces for overcloud nodes
       become: true

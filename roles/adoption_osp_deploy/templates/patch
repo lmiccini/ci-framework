@@ -1,0 +1,21 @@
+--- deployment/podman/podman-baremetal-ansible.yaml     2025-08-01 15:50:16.000000000 +0000
++++ /tmp/podman-baremetal-ansible.yaml  2025-08-27 09:26:45.739226811 +0000
+@@ -163,6 +163,9 @@
+             # and non-HTTPS registries. The --tls-verify flag prevents this
+             # fallback from functioning. We rely on this fallback for the
+             # undercloud registry.
++            - name: test workaround
++              become: true
++              shell: "ip r add default via 192.168.111.1"
+             - name: Pre-fetch all the containers
+               become: true
+               containers.podman.podman_image:
+@@ -176,6 +179,9 @@
+               loop_control:
+                   loop_var: prefetch_image
+               loop: "{{ lookup('template', tripleo_role_name + '/docker_config.yaml', errors='ignore') | default('{}', True) | from_yaml | recursive_get_key_from_dict(key='image') | unique }}"
++            - name: remove workaround
++              become: true
++              shell: "ip r del default"
+
+       service_config_settings: {}
