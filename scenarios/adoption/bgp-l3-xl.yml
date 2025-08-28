@@ -40,7 +40,8 @@ libvirt_manager_patch_layout:
       disksize: 80
       nets:
         - ocpbm
-        - osp_trunk
+        #- osp_trunk
+        - r0_tr
       spineleafnets:
         -  # rack0 - undercloud
           - "l00-node4"
@@ -53,8 +54,8 @@ libvirt_manager_patch_layout:
       disksize: 80
       nets:
         - ocpbm
-        - osp_trunk
-        #- r0_tr
+        #- osp_trunk
+        - r0_tr
       spineleafnets:
         -  # rack0 - controller0
           - "l00-node3"
@@ -67,8 +68,8 @@ libvirt_manager_patch_layout:
       disksize: 80
       nets:
         - ocpbm
-        - osp_trunk
-        #- r1_tr
+        #- osp_trunk
+        - r1_tr
       spineleafnets:
         -  # rack1 - controller1
           - "l10-node3"
@@ -81,8 +82,8 @@ libvirt_manager_patch_layout:
       disksize: 80
       nets:
         - ocpbm
-        - osp_trunk
-        #- r2_tr
+        #- osp_trunk
+        - r2_tr
       spineleafnets:
         -  # rack2 - controller2
           - "l20-node3"
@@ -95,8 +96,8 @@ libvirt_manager_patch_layout:
       disksize: 20
       nets:
         - ocpbm
-        - osp_trunk
-        #- r0_tr
+        #- osp_trunk
+        - r0_tr
       spineleafnets:
         -  # rack0 - compute0
           - "l00-node0"
@@ -112,8 +113,8 @@ libvirt_manager_patch_layout:
       disksize: 20
       nets:
         - ocpbm
-        - osp_trunk
-        #- r1_tr
+        #- osp_trunk
+        - r1_tr
       spineleafnets:
         - # rack1 - compute0
           - "l10-node0"
@@ -129,8 +130,8 @@ libvirt_manager_patch_layout:
       disksize: 20
       nets:
         - ocpbm
-        - osp_trunk
-        #- r2_tr
+        #- osp_trunk
+        - r2_tr
       spineleafnets:
         - # rack2 - compute0
           - "l20-node0"
@@ -415,98 +416,98 @@ networking_mapper_definition_patch:
           start: 140
           length: 2
       networks:
-        #ctlplaner0: {}
-        ctlplane: {}
+        ctlplaner0: {}
+        #ctlplane: {}
         external:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
         internalapi:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
         tenant:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
         storage:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
     osp-r1-controllers:
       network-template:
         range:
-          start: 145
+          start: 142
           length: 2
       networks:
-        #ctlplaner1: {}
-        ctlplane: {}
+        ctlplaner1: {}
+        #ctlplane: {}
         external:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner1
         internalapi:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner1
         tenant:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner1
         storage:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner1
     osp-r2-controllers:
       network-template:
         range:
-          start: 148
+          start: 144
           length: 2
       networks:
-        #ctlplaner2: {}
-        ctlplane: {}
+        ctlplaner2: {}
+        #ctlplane: {}
         external:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
         internalapi:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
         tenant:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
         storage:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
     osp-r0-computes:
       network-template:
         range:
           start: 100
           length: 5
       networks:
-        #ctlplaner0: {}
-        ctlplane: {}
+        ctlplaner0: {}
+        #ctlplane: {}
         internalapi:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
         tenant:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
         storage:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner0
     osp-r1-computes:
+      network-template:
+        range:
+          start: 105
+          length: 5
+      networks:
+        ctlplaner1: {}
+        #ctlplane: {}
+        internalapi:
+          trunk-parent: ctlplaner1
+        tenant:
+          trunk-parent: ctlplaner1
+        storage:
+          trunk-parent: ctlplaner1
+    osp-r2-computes:
       network-template:
         range:
           start: 110
           length: 5
       networks:
-        #ctlplaner1: {}
-        ctlplane: {}
-        internalapi:
-          trunk-parent: ctlplane
-        tenant:
-          trunk-parent: ctlplane
-        storage:
-          trunk-parent: ctlplane
-    osp-r2-computes:
-      network-template:
-        range:
-          start: 120
-          length: 5
-      networks:
         ctlplaner2: {}
-        ctlplane: {}
+        #ctlplane: {}
         internalapi:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
         tenant:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
         storage:
-          trunk-parent: ctlplane
+          trunk-parent: ctlplaner2
     osp-underclouds:
       network-template:
         range:
           start: 95
           length: 1
       networks:
-        #ctlplaner0: {}
-        ctlplane: {}
+        ctlplaner0: {}
+        #ctlplane: {}
         #internalapi:
         #  #trunk-parent: ctlplaner0
         #  trunk-parent: ctlplane

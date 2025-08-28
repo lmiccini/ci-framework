@@ -514,7 +514,7 @@ cifmw_libvirt_manager_configuration:
         - ocpbm
         - osp_trunk
     r0-compute: &r0_compute_def
-      amount: 2
+      amount: 0
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -538,7 +538,7 @@ cifmw_libvirt_manager_configuration:
           - "l00-node1"
           - "l01-node1"
     r1-compute:
-      amount: 2
+      amount: 0
       root_part_id: "{{ cifmw_root_partition_id }}"
       uefi: "{{ cifmw_use_uefi }}"
       image_url: "{{ cifmw_discovered_image_url }}"
@@ -559,7 +559,7 @@ cifmw_libvirt_manager_configuration:
           - "l10-node1"
           - "l11-node1"
     r2-compute:
-      amount: 2
+      amount: 0
       root_part_id: "{{ cifmw_root_partition_id }}"
       uefi: "{{ cifmw_use_uefi }}"
       image_url: "{{ cifmw_discovered_image_url }}"
@@ -719,7 +719,7 @@ cifmw_libvirt_manager_configuration:
         -  # router - ocp_tester (worker 9)
           - "rtr-ocp"
     router:
-      amount: 1
+      amount: 0
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -740,7 +740,7 @@ cifmw_libvirt_manager_configuration:
           - "s1-rtr"
           - "rtr-ocp"
     spine:
-      amount: 2
+      amount: 0
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -773,7 +773,7 @@ cifmw_libvirt_manager_configuration:
           - "l21-s1"
           - "s1-rtr"
     leaf:
-      amount: 6
+      amount: 0
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -896,16 +896,16 @@ cifmw_kustomize_deploy_metallb_source_files: >-
 #                       src_dir }}/playbooks/bgp/prepare-bgp-computes.yaml"
 
 
-pre_deploy:
-  - name: BGP spines and leaves configuration
-    type: playbook
-    source: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework/playbooks/bgp/prepare-bgp-spines-leaves.yaml"
-    extra_vars:
-      num_racks: "{{ num_racks }}"
-      router_bool: true
-      edpm_nodes_per_rack: 4
-      ocp_nodes_per_rack: 4
-      router_uplink_ip: 100.64.10.1
+#pre_deploy:
+#  - name: BGP spines and leaves configuration
+#    type: playbook
+#    source: "/home/zuul/src/github.com/openstack-k8s-operators/ci-framework/playbooks/bgp/prepare-bgp-spines-leaves.yaml"
+#    extra_vars:
+#      num_racks: "{{ num_racks }}"
+#      router_bool: true
+#      edpm_nodes_per_rack: 4
+#      ocp_nodes_per_rack: 4
+#      router_uplink_ip: 100.64.10.1
 
 # post_deploy:
 #   - name: BGP computes configuration
