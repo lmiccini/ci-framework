@@ -18,12 +18,12 @@ network_config:
   dns_servers: ['192.168.122.1', '192.168.125.1']
   domain: []
   routes:
-{% if 'ctlplaner0' in overcloud_vm %}
+{% if 'r0' in overcloud_vm %}
   - ip_netmask: 192.168.123.0/24
     next_hop: 192.168.122.1
   - ip_netmask: 192.168.124.0/24
     next_hop: 192.168.122.1
-{% elif 'ctlplaner1' in overcloud_vm %}
+{% elif 'r1' in overcloud_vm %}
   - ip_netmask: 192.168.122.0/24
     next_hop: 192.168.123.1
   - ip_netmask: 192.168.124.0/24
