@@ -21,6 +21,7 @@ _osp_img_data: &osp_base_conf
 
 cifmw_architecture_scenario: bgp-adoption
 
+
 libvirt_manager_patch_layout:
   vms:
     # Let's remove the default computes, since we want to adopt the
