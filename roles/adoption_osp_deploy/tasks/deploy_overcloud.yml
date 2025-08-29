@@ -62,21 +62,21 @@
         dest: "{{ _private_overcloud_conf_file }}"
         mode: "0644"
 
-    - name: BGP workaround copy patch
-      delegate_to: "osp-undercloud-0"
-      when: bgp
-      become: true
-      copy:
-        src: templates/patch
-        dest: /tmp/patch
+        #- name: BGP workaround copy patch
+        #  delegate_to: "osp-undercloud-0"
+        #  when: bgp
+        #  become: true
+        #  copy:
+        #    src: templates/patch
+        #    dest: /tmp/patch
 
-    - name: BGP workaround apply patch
-      delegate_to: "osp-undercloud-0"
-      when: bgp
-      become: true
-      shell: |
-        sudo dnf install -y patch
-        cat /tmp/patch | sudo patch -p1 /usr/share/openstack-tripleo-heat-templates/deployment/podman/podman-baremetal-ansible.yaml
+        #- name: BGP workaround apply patch
+        #  delegate_to: "osp-undercloud-0"
+        #  when: bgp
+        #  become: true
+        #  shell: |
+        #    sudo dnf install -y patch
+        #    cat /tmp/patch | sudo patch -p1 /usr/share/openstack-tripleo-heat-templates/deployment/podman/podman-baremetal-ansible.yaml
 
     - name: Run overcloud deploy
       delegate_to: "osp-undercloud-0"
