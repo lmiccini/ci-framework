@@ -40,7 +40,7 @@ router bgp 200 vrf openstack-vrf2
   neighbor downlink20 password f00barZ
   ! neighbor downlink20 capability extended-nexthop
 {% for iface in downlink_interfaces %}
-  neighbor {{iface}}:20 interface peer-group downlink
+  neighbor {{iface}}.20 interface peer-group downlink
 {% endfor %}
 
   neighbor uplink peer-group
@@ -71,7 +71,7 @@ router bgp 100 vrf openstack-vrf1
   neighbor downlink10 password f00barZ
   ! neighbor downlink10 capability extended-nexthop
 {% for iface in downlink_interfaces %}
-  neighbor {{iface}}:10 interface peer-group downlink
+  neighbor {{iface}}.10 interface peer-group downlink
 {% endfor %}
 
   neighbor uplink peer-group
