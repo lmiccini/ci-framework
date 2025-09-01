@@ -1,0 +1,71 @@
+---
+# Copyright Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+- name: Create fencing.yaml
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  tasks:
+    - name: Copy fencing.yaml template
+      delegate_to: "osp-undercloud-0"
+      ansible.builtin.template:
+        src: templates/fencing.yaml.j2
+        dest: /home/zuul/fencing.yaml
+
+    - name: Ignore ssh key
+      delegate_to: "osp-undercloud-0"
+      copy:
+        content: |
+          Host *
+            StrictHostKeyChecking no
+        dest: /home/zuul/.ssh/config
+
+    - name: Register mac addresses and sed them into the template
+      delegate_to: "osp-undercloud-0"
+      ansible.builtin.shell: |
+        string=$(grep osp-compute /home/zuul/overcloud-deploy/overcloud/tripleo-ansible-inventory.yaml |head -1 |head -1|cut -d- -f3)
+        compute0mac=$(ssh osp-compute-$string-0 ip link show eth0 |grep ether |awk '{print $2}')
+        compute1mac=$(ssh osp-compute-$string-1 ip link show eth0 |grep ether |awk '{print $2}')
+        compute2mac=$(ssh osp-compute-$string-2 ip link show eth0 |grep ether |awk '{print $2}')
+        controller0mac=$(ssh osp-controller-$string-0 ip link show eth0 |grep ether |awk '{print $2}')
+        controller1mac=$(ssh osp-controller-$string-1 ip link show eth0 |grep ether |awk '{print $2}')
+        controller2mac=$(ssh osp-controller-$string-2 ip link show eth0 |grep ether |awk '{print $2}')
+
+        controller0uuid=$(ssh osp-controller-$string-0 sudo cat /sys/class/dmi/id/product_uuid)
+        controller1uuid=$(ssh osp-controller-$string-1 sudo cat /sys/class/dmi/id/product_uuid)
+        controller2uuid=$(ssh osp-controller-$string-2 sudo cat /sys/class/dmi/id/product_uuid)
+        compute0uuid=$(ssh osp-compute-$string-0 sudo cat /sys/class/dmi/id/product_uuid)
+        compute1uuid=$(ssh osp-compute-$string-1 sudo cat /sys/class/dmi/id/product_uuid)
+        compute2uuid=$(ssh osp-compute-$string-2 sudo cat /sys/class/dmi/id/product_uuid)
+
+        sed -i "s/compute0mac/$compute0mac/g" /home/zuul/fencing.yaml
+        sed -i "s/compute1mac/$compute1mac/g" /home/zuul/fencing.yaml
+        sed -i "s/compute2mac/$compute2mac/g" /home/zuul/fencing.yaml
+
+        sed -i "s/controller0mac/$controller0mac/g" /home/zuul/fencing.yaml
+        sed -i "s/controller1mac/$controller1mac/g" /home/zuul/fencing.yaml
+        sed -i "s/controller2mac/$controller2mac/g" /home/zuul/fencing.yaml
+
+        sed -i "s/compute0uuid/$compute0uuid/g" /home/zuul/fencing.yaml
+        sed -i "s/compute1uuid/$compute1uuid/g" /home/zuul/fencing.yaml
+        sed -i "s/compute2uuid/$compute2uuid/g" /home/zuul/fencing.yaml
+
+        sed -i "s/controller0uuid/$controller0uuid/g" /home/zuul/fencing.yaml
+        sed -i "s/controller1uuid/$controller1uuid/g" /home/zuul/fencing.yaml
+        sed -i "s/controller2uuid/$controller2uuid/g" /home/zuul/fencing.yaml
+
+        # workaround
+        ssh osp-controller-$string-0 sudo dnf install -y pacemaker pcs fence-agents-compute fence-agents-ipmilan fence-agents-redfish
+        ssh osp-controller-$string-1 sudo dnf install -y pacemaker pcs fence-agents-compute fence-agents-ipmilan fence-agents-redfish
+        ssh osp-controller-$string-2 sudo dnf install -y pacemaker pcs fence-agents-compute fence-agents-ipmilan fence-agents-redfish
