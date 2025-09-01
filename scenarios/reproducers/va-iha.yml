@@ -3,7 +3,7 @@
 # controller-0 as-is and be consumed by the `deploy-va.sh` script.
 # Please note, all paths are on the controller-0, meaning managed by the
 # Framework. Please do not edit them!
-_arch_repo: "{{ cifmw_architecture_repo }}"
+_arch_repo: "{{ cifmw_architecture_repo | default('/home/zuul/src/github.com/openstack-k8s-operators/architecture') }}"
 cifmw_architecture_scenario: pidone
 
 # HERE if you want to override kustomization, you can uncomment this parameter
@@ -79,7 +79,7 @@ cifmw_libvirt_manager_configuration:
       extra_disks_num: 4
       extra_disks_size: "100G"
       cpus: 10
-      memory: 32
+      memory: 16
       nets:
         - ocppr
         - ocpbm
@@ -87,7 +87,7 @@ cifmw_libvirt_manager_configuration:
     compute:
       uefi: "{{ cifmw_use_uefi }}"
       root_part_id: "{{ cifmw_root_partition_id }}"
-      amount: 0
+      amount: "{{ [cifmw_libvirt_manager_compute_amount|int, 3] | max }}"
       image_url: "{{ cifmw_discovered_image_url }}"
       sha256_image_name: "{{ cifmw_discovered_hash }}"
       image_local_dir: "{{ cifmw_basedir }}/images/"
