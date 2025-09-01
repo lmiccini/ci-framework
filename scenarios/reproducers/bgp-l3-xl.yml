@@ -1,5 +1,7 @@
 ---
 
+cifmw_use_lvms: false
+
 cifmw_os_net_setup_config:
   - name: public
     external: true
