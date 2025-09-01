@@ -29,10 +29,6 @@ libvirt_manager_patch_layout:
     compute:
       <<: *osp_base_conf
       amount: 0
-    ocp:
-      <<: *osp_base_conf
-    ocp_worker:
-      <<: *osp_base_conf
     osp-undercloud:
       <<: *osp_base_conf
       amount: 1
