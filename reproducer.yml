@@ -94,6 +94,13 @@
             name: firewalld
             state: restarted
 
+    - name: Run pre-deployment command
+      when:
+        - cifmw_pre_architecture_cmd is defined
+      delegate_to: controller-0
+      ansible.builtin.command:
+        cmd: "{{ cifmw_pre_architecture_cmd }}"
+
     - name: Run deployment if instructed to
       when:
         - cifmw_deploy_architecture | default(false) | bool
