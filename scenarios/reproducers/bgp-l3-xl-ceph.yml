@@ -729,7 +729,7 @@ cifmw_libvirt_manager_configuration:
       image_url: "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20250825.1.x86_64.qcow2"
       sha256_image_name: "54b86ad383c7ccdb296771acfe281b2d6cb130ada6c062f98374779834e21025"
       image_local_dir: "{{ cifmw_basedir }}/images/"
-      disk_file_name: "base-os.qcow2"
+      disk_file_name: "centos-9-stream.qcow2"
       disksize: 25
       memory: 4
       cpus: 2
@@ -750,7 +750,7 @@ cifmw_libvirt_manager_configuration:
       image_url: "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20250825.1.x86_64.qcow2"
       sha256_image_name: "54b86ad383c7ccdb296771acfe281b2d6cb130ada6c062f98374779834e21025"
       image_local_dir: "{{ cifmw_basedir }}/images/"
-      disk_file_name: "base-os.qcow2"
+      disk_file_name: "centos-9-stream.qcow2"
       disksize: 25
       memory: 4
       cpus: 2
@@ -783,7 +783,7 @@ cifmw_libvirt_manager_configuration:
       image_url: "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20250825.1.x86_64.qcow2"
       sha256_image_name: "54b86ad383c7ccdb296771acfe281b2d6cb130ada6c062f98374779834e21025"
       image_local_dir: "{{ cifmw_basedir }}/images/"
-      disk_file_name: "base-os.qcow2"
+      disk_file_name: "centos-9-stream.qcow2"
       disksize: 25
       memory: 4
       cpus: 2
