@@ -76,18 +76,18 @@
     - name: Install FRR
       when: '"frr" not in ansible_facts.packages'
       block:
-        - name: Install RHOS Release tool
-          become: true
-          ansible.builtin.package:
-            name: "{{ cifmw_repo_setup_rhos_release_rpm }}"
-            state: present
-            disable_gpg_check: true
+        #- name: Install RHOS Release tool
+        #  become: true
+        #  ansible.builtin.package:
+        #    name: "{{ cifmw_repo_setup_rhos_release_rpm }}"
+        #    state: present
+        #    disable_gpg_check: true
 
-        - name: Enable RHOS release repos.
-          become: true
-          ansible.builtin.command:
-            cmd: "rhos-release rhel"
-          changed_when: false
+        #- name: Enable RHOS release repos.
+        #  become: true
+        #  ansible.builtin.command:
+        #    cmd: "rhos-release rhel"
+        #  changed_when: false
 
         - name: Install frr
           become: true
