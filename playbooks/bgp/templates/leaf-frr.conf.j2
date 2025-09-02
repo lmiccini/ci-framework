@@ -40,19 +40,12 @@ router bgp 200 vrf openstack-vrf2
   neighbor downlink20 password f00barZ
   ! neighbor downlink20 capability extended-nexthop
 {% for iface in downlink_interfaces %}
-  neighbor {{iface}}.20 interface peer-group downlink
+  neighbor {{iface}}.20 interface peer-group downlink20
 {% endfor %}
 
-  neighbor uplink peer-group
-  neighbor uplink remote-as external
-  neighbor uplink bfd
-  neighbor uplink bfd profile tripleo
-  ! neighbor uplink capability extended-nexthop
-{% for iface in uplink_ifs %}
-  neighbor {{iface}} interface peer-group uplink
-{% endfor %}
-
-
+  address-family ipv4 unicast
+    neighbor downlink20 activate
+  exit-address-family
 
 router bgp 100 vrf openstack-vrf1
   bgp log-neighbor-changes
@@ -71,17 +64,12 @@ router bgp 100 vrf openstack-vrf1
   neighbor downlink10 password f00barZ
   ! neighbor downlink10 capability extended-nexthop
 {% for iface in downlink_interfaces %}
-  neighbor {{iface}}.10 interface peer-group downlink
+  neighbor {{iface}}.10 interface peer-group downlink10
 {% endfor %}
 
-  neighbor uplink peer-group
-  neighbor uplink remote-as external
-  neighbor uplink bfd
-  neighbor uplink bfd profile tripleo
-  ! neighbor uplink capability extended-nexthop
-{% for iface in uplink_ifs %}
-  neighbor {{iface}} interface peer-group uplink
-{% endfor %}
+  address-family ipv4 unicast
+    neighbor downlink10 activate
+  exit-address-family
 
 
 router bgp 64999
