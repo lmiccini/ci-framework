@@ -92,7 +92,7 @@
         - name: Install frr
           become: true
           ansible.builtin.package:
-            name: frr-8.5.3-4.el9
+            name: frr
             state: present
             #disable_gpg_check: true
 
