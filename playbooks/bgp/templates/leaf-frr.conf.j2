@@ -13,16 +13,6 @@ debug bgp neighbor-events
 debug bgp updates
 debug bgp update-groups
 
-vrf openstack-vrf1
-  rd 100:1
-  route-target export 100:1
-  route-target import 100:1
-
-vrf openstack-vrf2
-  rd 200:1
-  route-target export 200:1
-  route-target import 200:1
-
 router bgp 200 vrf openstack-vrf2
   bgp log-neighbor-changes
   bgp graceful-shutdown
@@ -34,7 +24,7 @@ router bgp 200 vrf openstack-vrf2
   ! bgp long-lived-graceful-restart stale-time 15
 
   neighbor downlink20 peer-group
-  neighbor downlink20 remote-as internal
+  neighbor downlink20 remote-as 200
   neighbor downlink20 bfd
   neighbor downlink20 bfd profile tripleo
   neighbor downlink20 password f00barZ
@@ -58,7 +48,7 @@ router bgp 100 vrf openstack-vrf1
   ! bgp long-lived-graceful-restart stale-time 15
 
   neighbor downlink10 peer-group
-  neighbor downlink10 remote-as internal
+  neighbor downlink10 remote-as 100
   neighbor downlink10 bfd
   neighbor downlink10 bfd profile tripleo
   neighbor downlink10 password f00barZ

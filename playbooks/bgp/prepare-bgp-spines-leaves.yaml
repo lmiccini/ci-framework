@@ -9,9 +9,10 @@
           for i in $(ls /proc/sys/net/ipv6/conf/*/forwarding); do echo 1 > $i; done
       changed_when: false
 
+    # sed 's/\\./\\//g' needed to replace ethx.y with ethx/y so that the sysctl task can act on vlans
     - name: Register interfaces
       ansible.builtin.shell:
-        cmd: "set -o pipefail && ls -1 /proc/sys/net/ipv4/conf/*/rp_filter | cut -d/ -f7"
+        cmd: "set -o pipefail && ls -1 /proc/sys/net/ipv4/conf/*/rp_filter | cut -d/ -f7 |sed 's/\\./\\//g'"
       register: interfaces
       changed_when: false
 
@@ -489,6 +490,53 @@
       loop: "{{ leaf_downlink_conns }}"
       loop_control:
         index_var: loop_index
+
+    - name: Create vrfs and add nics
+      become: true
+      shell: |
+        sysctl -w net.ipv4.tcp_l3mdev_accept=1
+
+        ip link add openstack-vrf1 type vrf table 100
+        ip link add openstack-vrf2 type vrf table 200
+        ip link set up dev openstack-vrf1
+        ip link set up dev openstack-vrf2
+
+        ip link set dev eth3.10 master openstack-vrf1
+        ip link set dev eth4.10 master openstack-vrf1
+        ip link set dev eth5.10 master openstack-vrf1
+        ip link set dev eth6.10 master openstack-vrf1
+        ip link set dev eth7.10 master openstack-vrf1
+        ip link set dev eth8.10 master openstack-vrf1
+        ip link set dev eth9.10 master openstack-vrf1
+        ip link set dev eth10.10 master openstack-vrf1
+
+        ip route add 100.64.10.0/30 dev eth3.10 table 100
+        ip route add 100.64.10.4/30 dev eth4.10 table 100
+        ip route add 100.64.10.8/30 dev eth5.10 table 100
+        ip route add 100.64.10.12/30 dev eth6.10 table 100
+        ip route add 100.64.10.16/30 dev eth7.10 table 100
+        ip route add 100.64.10.20/30 dev eth8.10 table 100
+        ip route add 100.64.10.24/30 dev eth9.10 table 100
+        ip route add 100.64.10.28/30 dev eth10.10 table 100
+
+        ip link set dev eth3.20 master openstack-vrf2
+        ip link set dev eth4.20 master openstack-vrf2
+        ip link set dev eth5.20 master openstack-vrf2
+        ip link set dev eth6.20 master openstack-vrf2
+        ip link set dev eth7.20 master openstack-vrf2
+        ip link set dev eth8.20 master openstack-vrf2
+        ip link set dev eth9.20 master openstack-vrf2
+        ip link set dev eth10.20 master openstack-vrf2
+
+        ip route add 100.64.20.0/30 dev eth3.20 table 200
+        ip route add 100.64.20.4/30 dev eth4.20 table 200
+        ip route add 100.64.20.8/30 dev eth5.20 table 200
+        ip route add 100.64.20.12/30 dev eth6.20 table 200
+        ip route add 100.64.20.16/30 dev eth7.20 table 200
+        ip route add 100.64.20.20/30 dev eth8.20 table 200
+        ip route add 100.64.20.24/30 dev eth9.20 table 200
+        ip route add 100.64.20.28/30 dev eth10.20 table 200
+
 
     - name: Configure uplink leaf connections
       become: true
