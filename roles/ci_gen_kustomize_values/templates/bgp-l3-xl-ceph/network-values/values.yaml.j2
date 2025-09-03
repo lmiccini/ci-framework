@@ -36,6 +36,26 @@ data:
 {%     if 'worker-9' != hostname %}
       - {{ node_bgp_net1.bgp_ip }}
 {%     endif %}
+    bgp_vrf1_peers:
+      - {{ node_bgp_net0.bgp_vrf1_peer }}
+{%     if 'worker-9' != hostname %}
+      - {{ node_bgp_net1.bgp_vrf1_peer }}
+{%     endif %}
+    bgp_vrf1_ip:
+      - {{ node_bgp_net0.bgp_vrf1_ip }}
+{%     if 'worker-9' != hostname %}
+      - {{ node_bgp_net1.bgp_vrf1_ip }}
+{%     endif %}
+    bgp_vrf2_peers:
+      - {{ node_bgp_net0.bgp_vrf2_peer }}
+{%     if 'worker-9' != hostname %}
+      - {{ node_bgp_net1.bgp_vrf2_peer }}
+{%     endif %}
+    bgp_vrf2_ip:
+      - {{ node_bgp_net0.bgp_vrf2_ip }}
+{%     if 'worker-9' != hostname %}
+      - {{ node_bgp_net1.bgp_vrf2_ip }}
+{%     endif %}
     loopback_ip: {{ node_bgp_orig_content.loopback_ip }}
     loopback_ipv6: {{ node_bgp_orig_content.loopback_ipv6 }}
 {%     if node_bgp_orig_content.routes | default(false) %}
