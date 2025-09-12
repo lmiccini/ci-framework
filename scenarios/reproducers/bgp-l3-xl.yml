@@ -663,7 +663,7 @@ cifmw_libvirt_manager_configuration:
       nets:  # nets common to all the ocp nodes
         - "ocppr"
         - "ocpbm"
-        - "osp_trunk"
+      #  - "osp_trunk"
       spineleafnets:
         -  # rack0 - ocp master 0
           - "l00-ocp0"
@@ -689,7 +689,7 @@ cifmw_libvirt_manager_configuration:
       nets:  # nets common to all the ocp_worker nodes
         - "ocppr"
         - "ocpbm"
-        - "osp_trunk"
+      #  - "osp_trunk"
       spineleafnets:
         -  # rack0 - ocp worker 0
           - "l00-ocp1"
