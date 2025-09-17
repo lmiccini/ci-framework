@@ -124,19 +124,20 @@ data:
         "isDefaultGateway": true,
         "isGateway": true,
         "forceAddress": false,
-        "ipMasq": true,
         "hairpinMode": true,
 {%  if network.network_name == "octavia" %}
         "bridge": "octbr",
 {%  elif network.network_name == "ctlplane" %}
+        "ipMasq": true,
         "bridge": "ospbr",
 {%  else %}
+        "ipMasq": false,
         "bridge": "{{ network.network_name }}",
 {%  endif %}
         "ipam": {
           "type": "whereabouts",
           "range": "{{ network.network_v4 }}",
-{%  if network.network_name == "octavia" and network.tools.multus.ipv4_routes | default([]) | length > 0 %}
+{%  if network.network_name in ["octavia", "internalapi"] and network.tools.multus.ipv4_routes | default([]) | length > 0 %}
           "routes": [
 {%  for route in network.tools.multus.ipv4_routes %}
              {
