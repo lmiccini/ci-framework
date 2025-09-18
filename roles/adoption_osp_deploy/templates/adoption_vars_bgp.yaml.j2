@@ -1,6 +1,6 @@
 #jinja2: trim_blocks:True, lstrip_blocks:True
-source_mariadb_ip: 99.99.0.23
-source_ovndb_ip: 99.99.0.23
+source_mariadb_ip: 99.99.0.29
+source_ovndb_ip: 99.99.0.29
 edpm_node_hostname: {{ _compute_1_name }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}
 edpm_node_ip: {{ _compute_1_ip }}
 
@@ -39,15 +39,15 @@ edpm_networkers: |
 source_galera_members: |
   {% for controller in _vm_groups['osp-r0-controllers'] %}
   {% set node_nets = cifmw_networking_env_definition.instances[controller] %}
-  ["{{ controller }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"]="99.99.0.23"
+  ["{{ controller }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"]="99.99.0.29"
   {% endfor %}
   {% for controller in _vm_groups['osp-r1-controllers'] %}
   {% set node_nets = cifmw_networking_env_definition.instances[controller] %}
-  ["{{ controller }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"]="99.99.1.23"
+  ["{{ controller }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"]="99.99.1.29"
   {% endfor %}
   {% for controller in _vm_groups['osp-r2-controllers'] %}
   {% set node_nets = cifmw_networking_env_definition.instances[controller] %}
-  ["{{ controller }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"]="99.99.2.23"
+  ["{{ controller }}.{{ cifmw_adoption_osp_deploy_scenario.cloud_domain }}"]="99.99.2.29"
   {% endfor %}
 
 
