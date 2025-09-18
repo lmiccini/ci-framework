@@ -137,7 +137,7 @@ data:
         "ipam": {
           "type": "whereabouts",
           "range": "{{ network.network_v4 }}",
-{%  if network.network_name in ["octavia", "internalapi"] and network.tools.multus.ipv4_routes | default([]) | length > 0 %}
+{%  if network.network_name in ["octavia", "internalapi", "storage"] and network.tools.multus.ipv4_routes | default([]) | length > 0 %}
           "routes": [
 {%  for route in network.tools.multus.ipv4_routes %}
              {

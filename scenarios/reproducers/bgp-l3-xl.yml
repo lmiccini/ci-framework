@@ -1054,6 +1054,13 @@ cifmw_networking_definition:
       mtu: 1500
       tools:
         multus:
+          ipv4_routes:
+            - destination: "172.31.0.0/24"
+              gateway: "172.18.0.1"
+            - destination: "192.168.188.0/24"
+              gateway: "172.18.0.1"
+            - destination: "99.99.0.0/16"
+              gateway: "172.18.0.1"
           ranges:
             - start: 30
               end: 70
