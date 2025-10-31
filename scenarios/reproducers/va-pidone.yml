@@ -155,3 +155,5 @@ cifmw_lvms_disk_list:
 
 # lvms-operator tolerations:
 cifmw_lvms_storage_tolerations: "{{ cifmw_test_operator_tolerations }}"
+
+cifmw_config_bmh: true
