@@ -53,6 +53,30 @@
         name: set_openstack_containers
       when: cifmw_ci_gen_kustomize_values_deployment_version is not defined
 
+- name: Update CatalogSource
+  hosts: "{{ cifmw_target_host | default('localhost') }}"
+  gather_facts: false
+  tasks:
+    - name: Update CatalogSource block
+      when: cifmw_update_catalog_source_enable | default(false) | bool
+      block:
+        - name: Set update step to Update CatalogSource
+          ansible.builtin.command:
+            cmd: >
+              {{ cifmw_basedir }}/tests/update/update_event.sh
+              Update CatalogSource
+
+        - name: Update CatalogSource to new image
+          ansible.builtin.include_role:
+            name: update
+            tasks_from: update_catalog_source.yml
+
+        - name: Set update step to CatalogSource Update Complete
+          ansible.builtin.command:
+            cmd: >
+              {{ cifmw_basedir }}/tests/update/update_event.sh
+              CatalogSource Update Complete
+
 - name: Sync repos for controller to compute
   hosts: computes
   gather_facts: true

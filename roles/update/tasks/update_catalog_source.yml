@@ -1,0 +1,119 @@
+---
+# Copyright Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# Description:
+# Updates the CatalogSource to a new image during update operations.
+# This is necessary when using custom CatalogSources (e.g., for OpenStack
+# operators) that need to be updated to a newer version of the operator catalog.
+
+- name: Validate required parameters
+  ansible.builtin.assert:
+    that:
+      - cifmw_update_catalog_source_name | default('') | length > 0
+      - cifmw_update_catalog_source_image | default('') | length > 0
+    fail_msg: >-
+      Both cifmw_update_catalog_source_name and cifmw_update_catalog_source_image
+      must be set to update the CatalogSource.
+
+- name: Check if CatalogSource exists
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+    api_key: "{{ cifmw_openshift_token | default(omit) }}"
+    context: "{{ cifmw_openshift_context | default(omit) }}"
+    api_version: operators.coreos.com/v1alpha1
+    kind: CatalogSource
+    namespace: "{{ cifmw_update_catalog_source_namespace }}"
+    name: "{{ cifmw_update_catalog_source_name }}"
+  register: _cifmw_update_catalog_source_info
+
+- name: Update CatalogSource block
+  when:
+    - _cifmw_update_catalog_source_info.resources | length > 0
+  block:
+    - name: Get current CatalogSource image
+      ansible.builtin.set_fact:
+        _cifmw_update_catalog_source_current_image: >-
+          {{ _cifmw_update_catalog_source_info.resources[0].spec.image }}
+
+    - name: Display current and target CatalogSource images
+      ansible.builtin.debug:
+        msg:
+          - "Current CatalogSource image: {{ _cifmw_update_catalog_source_current_image }}"
+          - "Target CatalogSource image: {{ cifmw_update_catalog_source_image }}"
+
+    - name: Update CatalogSource image
+      kubernetes.core.k8s:
+        kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+        api_key: "{{ cifmw_openshift_token | default(omit) }}"
+        context: "{{ cifmw_openshift_context | default(omit) }}"
+        state: present
+        definition:
+          apiVersion: operators.coreos.com/v1alpha1
+          kind: CatalogSource
+          metadata:
+            name: "{{ cifmw_update_catalog_source_name }}"
+            namespace: "{{ cifmw_update_catalog_source_namespace }}"
+          spec:
+            image: "{{ cifmw_update_catalog_source_image }}"
+      when: _cifmw_update_catalog_source_current_image != cifmw_update_catalog_source_image
+
+    - name: Wait for CatalogSource to be ready after update
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+        api_key: "{{ cifmw_openshift_token | default(omit) }}"
+        context: "{{ cifmw_openshift_context | default(omit) }}"
+        api_version: operators.coreos.com/v1alpha1
+        kind: CatalogSource
+        namespace: "{{ cifmw_update_catalog_source_namespace }}"
+        name: "{{ cifmw_update_catalog_source_name }}"
+      register: _cifmw_update_catalog_source_ready
+      until:
+        - _cifmw_update_catalog_source_ready.resources | length > 0
+        - _cifmw_update_catalog_source_ready.resources[0].status.connectionState.lastObservedState is defined
+        - _cifmw_update_catalog_source_ready.resources[0].status.connectionState.lastObservedState == 'READY'
+      retries: "{{ cifmw_update_catalog_source_retries }}"
+      delay: "{{ cifmw_update_catalog_source_delay }}"
+      when: _cifmw_update_catalog_source_current_image != cifmw_update_catalog_source_image
+
+    - name: Wait for Subscription to detect new catalog
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+        api_key: "{{ cifmw_openshift_token | default(omit) }}"
+        context: "{{ cifmw_openshift_context | default(omit) }}"
+        api_version: operators.coreos.com/v1alpha1
+        kind: Subscription
+        namespace: "{{ cifmw_update_catalog_source_namespace }}"
+        name: openstack-operator
+      register: _cifmw_update_subscription_info
+      until:
+        - _cifmw_update_subscription_info.resources | length > 0
+        - _cifmw_update_subscription_info.resources[0].status.installPlan is defined
+      retries: "{{ cifmw_update_catalog_source_retries }}"
+      delay: "{{ cifmw_update_catalog_source_delay }}"
+      when: _cifmw_update_catalog_source_current_image != cifmw_update_catalog_source_image
+
+    - name: CatalogSource updated successfully
+      ansible.builtin.debug:
+        msg: "CatalogSource {{ cifmw_update_catalog_source_name }} updated to {{ cifmw_update_catalog_source_image }}"
+      when: _cifmw_update_catalog_source_current_image != cifmw_update_catalog_source_image
+
+- name: CatalogSource not found warning
+  ansible.builtin.debug:
+    msg: >-
+      CatalogSource {{ cifmw_update_catalog_source_name }} not found in
+      namespace {{ cifmw_update_catalog_source_namespace }}.
+      Skipping CatalogSource update.
+  when: _cifmw_update_catalog_source_info.resources | length == 0

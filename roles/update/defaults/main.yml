@@ -67,3 +67,16 @@ cifmw_update_ctl_plane_max_tries: 84
 
 # Resource Monitoring during update
 cifmw_update_resources_monitoring_interval: 10 # in seconds.
+
+# CatalogSource update configuration
+# Enable CatalogSource update during the update process
+cifmw_update_catalog_source_enable: false
+# CatalogSource name to update - typically "openstack-operator-index"
+cifmw_update_catalog_source_name: "openstack-operator-index"
+# CatalogSource namespace - defaults to openstack-operators
+cifmw_update_catalog_source_namespace: "openstack-operators"
+# New CatalogSource image to update to (IIB image) - must be set by user
+cifmw_update_catalog_source_image: ""
+# Retries and delay for CatalogSource readiness check
+cifmw_update_catalog_source_retries: 30
+cifmw_update_catalog_source_delay: 10
