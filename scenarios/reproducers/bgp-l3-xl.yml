@@ -807,6 +807,7 @@ cifmw_libvirt_manager_configuration:
           - "l10-ocp1"
           - "l10-ocp2"
           - "l10-node3"
+          - "l10-node4"
         -  # rack1 - leaf11
           - "l11-s0"
           - "l11-s1"
@@ -817,6 +818,7 @@ cifmw_libvirt_manager_configuration:
           - "l11-ocp1"
           - "l11-ocp2"
           - "l11-node3"
+          - "l11-node4"
         -  # rack2 - leaf20
           - "l20-s0"
           - "l20-s1"
@@ -827,6 +829,7 @@ cifmw_libvirt_manager_configuration:
           - "l20-ocp1"
           - "l20-ocp2"
           - "l20-node3"
+          - "l20-node4"
         -  # rack2 - leaf21
           - "l21-s0"
           - "l21-s1"
@@ -837,6 +840,7 @@ cifmw_libvirt_manager_configuration:
           - "l21-ocp1"
           - "l21-ocp2"
           - "l21-node3"
+          - "l21-node4"
 
 ## devscript support for OCP deploy
 cifmw_devscripts_config_overrides:
