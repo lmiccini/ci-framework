@@ -652,7 +652,7 @@ cifmw_libvirt_manager_configuration:
       disksize: "105"
       memory: 16
       cpus: 10
-      extra_disks_num: 1
+      extra_disks_num: 3
       extra_disks_size: "20G"
       nets:  # nets common to all the ocp nodes
         - "ocppr"
@@ -668,7 +668,7 @@ cifmw_libvirt_manager_configuration:
       disksize: "105"
       memory: 16
       cpus: 10
-      extra_disks_num: 1
+      extra_disks_num: 3
       extra_disks_size: "20G"
       nets:  # nets common to all the ocp_worker nodes
         - "ocppr"
@@ -841,6 +841,13 @@ cifmw_libvirt_manager_configuration:
           - "l21-ocp2"
           - "l21-node3"
           - "l21-node4"
+
+# Set Logical Volume Manager Storage by default for local storage
+cifmw_use_lvms: true
+cifmw_lvms_disk_list:
+  - /dev/vda
+  - /dev/vdb
+  - /dev/vdc
 
 ## devscript support for OCP deploy
 cifmw_devscripts_config_overrides:
