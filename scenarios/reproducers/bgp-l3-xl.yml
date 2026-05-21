@@ -502,7 +502,7 @@ cifmw_libvirt_manager_configuration:
         - ocpbm
         - osp_trunk
     r0-compute: &r0_compute_def
-      amount: 0
+      amount: 2
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -522,11 +522,11 @@ cifmw_libvirt_manager_configuration:
         -  # rack0 - compute0
           - "l00-node0"
           - "l01-node0"
-        -  # rack0 - compute0
+        -  # rack0 - compute1
           - "l00-node1"
           - "l01-node1"
     r1-compute:
-      amount: 0
+      amount: 2
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -551,7 +551,7 @@ cifmw_libvirt_manager_configuration:
           - "l10-node1"
           - "l11-node1"
     r2-compute:
-      amount: 0
+      amount: 2
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
