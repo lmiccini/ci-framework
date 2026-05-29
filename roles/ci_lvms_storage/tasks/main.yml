@@ -156,33 +156,107 @@
   register: result
   until: result.failed == false
 
-- name: Wait for the LVMCluster to be ready
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
-    api_key: "{{ cifmw_openshift_token | default(omit) }}"
-    context: "{{ cifmw_openshift_context | default(omit) }}"
-    api_version: lvm.topolvm.io/v1alpha1
-    kind: LVMCluster
-    name: "{{ cifmw_lvms_cluster_name }}"
-    namespace: "{{ cifmw_lvms_namespace }}"
-  register: _cifmw_lvms_storage_cluster_lvmscluster_out
-  retries: "{{ cifmw_lvms_retries }}"
-  delay: "{{ cifmw_lvms_delay }}"
-  until:
-    - _cifmw_lvms_storage_cluster_lvmscluster_out.resources | default([]) | length == 1
-    - _cifmw_lvms_storage_cluster_lvmscluster_out.failed is false
-    - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status is defined
-    - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.ready is defined
-    - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.ready | bool
-    - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.deviceClassStatuses is defined
-    - >-
-      _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.deviceClassStatuses |
-      selectattr("name", "defined") |
-      selectattr("nodeStatus", "defined") |
-      selectattr("name", "equalto", cifmw_lvms_storage_class) |
-      map(attribute="nodeStatus") | flatten |
-      selectattr("status", "defined") |
-      map(attribute="status") | unique == ["Ready"]
+- name: Wait for the LVMCluster to be ready (with vg-manager recovery)
+  block:
+    - name: Initial wait for LVMCluster to be ready
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+        api_key: "{{ cifmw_openshift_token | default(omit) }}"
+        context: "{{ cifmw_openshift_context | default(omit) }}"
+        api_version: lvm.topolvm.io/v1alpha1
+        kind: LVMCluster
+        name: "{{ cifmw_lvms_cluster_name }}"
+        namespace: "{{ cifmw_lvms_namespace }}"
+      register: _cifmw_lvms_storage_cluster_lvmscluster_out
+      retries: "{{ cifmw_lvms_initial_ready_retries }}"
+      delay: "{{ cifmw_lvms_delay }}"
+      until:
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources | default([]) | length == 1
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.failed is false
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status is defined
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.ready is defined
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.ready | bool
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.deviceClassStatuses is defined
+        - >-
+          _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.deviceClassStatuses |
+          selectattr("name", "defined") |
+          selectattr("nodeStatus", "defined") |
+          selectattr("name", "equalto", cifmw_lvms_storage_class) |
+          map(attribute="nodeStatus") | flatten |
+          selectattr("status", "defined") |
+          map(attribute="status") | unique == ["Ready"]
+
+  rescue:
+    - name: Get vg-manager pods
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+        api_key: "{{ cifmw_openshift_token | default(omit) }}"
+        context: "{{ cifmw_openshift_context | default(omit) }}"
+        kind: Pod
+        namespace: "{{ cifmw_lvms_namespace }}"
+        label_selectors:
+          - app.kubernetes.io/name=vg-manager
+      register: _cifmw_lvms_vg_manager_pods
+
+    - name: Identify non-ready vg-manager pods
+      vars:
+        _ready_conditions: >-
+          {{
+            item.status.conditions |
+            default([]) |
+            selectattr('type', 'equalto', 'Ready') |
+            list
+          }}
+      ansible.builtin.set_fact:
+        _cifmw_lvms_stuck_vg_pods: >-
+          {{
+            _cifmw_lvms_stuck_vg_pods | default([]) +
+            ((_ready_conditions | length == 0 or
+              _ready_conditions[0].status != 'True') |
+             ternary([item.metadata.name], []))
+          }}
+      loop: "{{ _cifmw_lvms_vg_manager_pods.resources | default([]) }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
+
+    - name: Restart non-ready vg-manager pods
+      when: _cifmw_lvms_stuck_vg_pods | default([]) | length > 0
+      environment:
+        KUBECONFIG: "{{ cifmw_openshift_kubeconfig }}"
+        PATH: "{{ cifmw_path }}"
+      ansible.builtin.command:
+        cmd: >-
+          oc delete pod -n {{ cifmw_lvms_namespace }}
+          {{ _cifmw_lvms_stuck_vg_pods | join(' ') }}
+      changed_when: true
+
+    - name: Wait for LVMCluster to be ready after vg-manager restart
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ cifmw_openshift_kubeconfig }}"
+        api_key: "{{ cifmw_openshift_token | default(omit) }}"
+        context: "{{ cifmw_openshift_context | default(omit) }}"
+        api_version: lvm.topolvm.io/v1alpha1
+        kind: LVMCluster
+        name: "{{ cifmw_lvms_cluster_name }}"
+        namespace: "{{ cifmw_lvms_namespace }}"
+      register: _cifmw_lvms_storage_cluster_lvmscluster_out
+      retries: "{{ cifmw_lvms_retries }}"
+      delay: "{{ cifmw_lvms_delay }}"
+      until:
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources | default([]) | length == 1
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.failed is false
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status is defined
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.ready is defined
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.ready | bool
+        - _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.deviceClassStatuses is defined
+        - >-
+          _cifmw_lvms_storage_cluster_lvmscluster_out.resources[0].status.deviceClassStatuses |
+          selectattr("name", "defined") |
+          selectattr("nodeStatus", "defined") |
+          selectattr("name", "equalto", cifmw_lvms_storage_class) |
+          map(attribute="nodeStatus") | flatten |
+          selectattr("status", "defined") |
+          map(attribute="status") | unique == ["Ready"]
 
 - name: Wait for all the LVMVolumeGroupNodeStatus to be ready
   kubernetes.core.k8s_info:
