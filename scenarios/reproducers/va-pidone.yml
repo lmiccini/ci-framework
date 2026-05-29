@@ -1,4 +1,6 @@
 ---
+cifmw_ci_gen_kustomize_values_detect_metal3: true
+
 # Automation section. Most of those parameters will be passed to the
 # controller-0 as-is and be consumed by the `deploy-va.sh` script.
 # Please note, all paths are on the controller-0, meaning managed by the
@@ -8,11 +10,13 @@ cifmw_architecture_scenario: pidone
 
 # HERE if you want to override kustomization, you can uncomment this parameter
 # and push the data structure you want to apply.
-# cifmw_architecture_user_kustomize:
-#   stage_0:
-#     'network-values':
-#       data:
-#         starwars: Obiwan
+cifmw_architecture_user_kustomize:
+  stage_3:
+    'edpm-nodeset-values':
+      data:
+        baremetalSetTemplate:
+          ctlplaneInterface: enp6s0
+          provisioningInterface: enp5s0
 
 # HERE, if you want to stop the deployment loop at any stage, you can uncomment
 # the following parameter and update the value to match the stage you want to
@@ -85,13 +89,10 @@ cifmw_libvirt_manager_configuration:
         - ocpbm
         - osp_trunk
     compute:
-      uefi: "{{ cifmw_use_uefi }}"
-      root_part_id: "{{ cifmw_root_partition_id }}"
+      uefi: true
       amount: "{{ [cifmw_libvirt_manager_compute_amount|int, 3] | max }}"
-      image_url: "{{ cifmw_discovered_image_url }}"
-      sha256_image_name: "{{ cifmw_discovered_hash }}"
       image_local_dir: "{{ cifmw_basedir }}/images/"
-      disk_file_name: "compute-base-os.qcow2"
+      disk_file_name: "blank"
       disksize: "{{ [cifmw_libvirt_manager_compute_disksize|int, 50] | max }}"
       memory: "{{ [cifmw_libvirt_manager_compute_memory|int, 8] | max }}"
       cpus: "{{ [cifmw_libvirt_manager_compute_cpus|int, 4] | max }}"
@@ -143,6 +144,16 @@ cifmw_test_operator_tolerations:
     effect: "NoExecute"
 cifmw_test_operator_node_selector:
   kubernetes.io/hostname: worker-3
+
+# Baremetal host configuration
+cifmw_config_bmh: true
+cifmw_deploy_bmh_boot_interface: ocpbm
+
+cifmw_devscripts_config_overrides_patch_bmo_watch_all_namespaces:
+  bmo_watch_all_namespaces: true
+
+# Use EDPM image for computes
+cifmw_update_containers_edpm_image_url: "{{ cifmw_update_containers_registry }}/{{ cifmw_update_containers_org }}/edpm-hardened-uefi:{{ cifmw_update_containers_tag }}"
 
 cifmw_devscripts_create_logical_volume: true
 
