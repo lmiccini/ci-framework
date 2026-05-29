@@ -30,6 +30,7 @@ cifmw_lvms_thin_pool_name: cifmw_lvms_thin_pool
 cifmw_lvms_thin_pool_size_percent: 90
 cifmw_lvms_thin_pool_overprovision_ratio: 10
 cifmw_lvms_retries: 60
+cifmw_lvms_initial_ready_retries: 30
 cifmw_lvms_delay: 10
 cifmw_lvms_wait_nodes_lvs_retries: 120
 cifmw_lvms_storage_tolerations: {}
