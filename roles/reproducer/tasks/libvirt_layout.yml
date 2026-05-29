@@ -93,8 +93,11 @@
 # ctlplane network is configured for pre-provisioned edpm nodes.
 # In order to do this, we'll consume the generated networking_mapper
 # environment file, and filter on all known edpm node types.
+# Skipped when cifmw_config_bmh is set, as BMH computes have blank
+# disks and are provisioned by Ironic, not pre-configured via SSH.
 - name: Configure EDPM based nodes ctlplane network
   when:
+    - not (cifmw_config_bmh | default(false) | bool)
     - >-
       (compute.key in (groups['computes'] | default([]))) or
       (compute.key in (groups['cephs'] | default([]))) or
