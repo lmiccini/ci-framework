@@ -26,7 +26,7 @@ spec:
   bootMACAddress: "{{ nic.mac }}"
 {% endfor                                                                            %}
   bootMode: {{ node_data['boot_mode'] }}
-  online: {{ 'true' if node_data['status'] | default("") == "running" else 'false' }}
+  online: {{ node_data['online'] | default('true') }}
 {% if 'root_device_hint' in node_data                                                                    %}
 {# Ensure integer values are rendered as integers and not as strings #}
 {% set hint_value = node_data['root_device_hint']
