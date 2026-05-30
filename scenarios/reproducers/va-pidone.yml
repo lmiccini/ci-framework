@@ -17,6 +17,37 @@ cifmw_architecture_user_kustomize:
         baremetalSetTemplate:
           ctlplaneInterface: enp6s0
           provisioningInterface: enp5s0
+        nodeset:
+          ansible:
+            ansibleVars:
+              edpm_bootstrap_command: |
+                cat > /etc/yum.repos.d/centos.repo << 'REPO'
+                [baseos]
+                name=CentOS Stream 9 - BaseOS
+                baseurl=https://mirror.stream.centos.org/9-stream/BaseOS/x86_64/os/
+                gpgcheck=0
+                enabled=1
+
+                [appstream]
+                name=CentOS Stream 9 - AppStream
+                baseurl=https://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/
+                gpgcheck=0
+                enabled=1
+
+                [crb]
+                name=CentOS Stream 9 - CRB
+                baseurl=https://mirror.stream.centos.org/9-stream/CRB/x86_64/os/
+                gpgcheck=0
+                enabled=1
+                REPO
+                cat >> /etc/yum.repos.d/centos.repo << 'CEPH'
+
+                [centos-ceph-quincy]
+                name=CentOS Stream 9 - Ceph Quincy
+                baseurl=https://mirror.stream.centos.org/SIGs/9-stream/storage/x86_64/ceph-quincy/
+                gpgcheck=0
+                enabled=1
+                CEPH
 
 # HERE, if you want to stop the deployment loop at any stage, you can uncomment
 # the following parameter and update the value to match the stage you want to
