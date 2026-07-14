@@ -23,7 +23,7 @@ cifmw_virtualbmc_daemon_port: 50881
 cifmw_use_uefi: >-
   {{ (cifmw_repo_setup_os_release is defined
       and cifmw_repo_setup_os_release == 'rhel') | bool }}
-num_racks: 2
+num_racks: 3
 cifmw_libvirt_manager_compute_amount: "{{ num_racks }}"
 cifmw_libvirt_manager_networker_amount: 2
 cifmw_libvirt_manager_pub_net: ocpbm
@@ -40,6 +40,10 @@ cifmw_libvirt_manager_network_interface_types:
   l11-s0: network
   l10-s1: network
   l11-s1: network
+  l20-s0: network
+  l21-s0: network
+  l20-s1: network
+  l21-s1: network
   l00-node0: network
   l00-node1: network
   l00-node2: network
@@ -70,6 +74,8 @@ cifmw_libvirt_manager_network_interface_types:
   l11-ocp0: network
   l11-ocp1: network
   l11-ocp2: network
+  l20-ocp0: network
+  l21-ocp0: network
 
 cifmw_libvirt_manager_configuration:
   networks:
@@ -144,6 +150,27 @@ cifmw_libvirt_manager_configuration:
       <network>
         <name>l11-s1</name>
         <bridge name='l11-s1' stp='on' delay='0'/>
+      </network>
+    ## rack2 (arbiter)
+    l20-s0: |
+      <network>
+        <name>l20-s0</name>
+        <bridge name='l20-s0' stp='on' delay='0'/>
+      </network>
+    l20-s1: |
+      <network>
+        <name>l20-s1</name>
+        <bridge name='l20-s1' stp='on' delay='0'/>
+      </network>
+    l21-s0: |
+      <network>
+        <name>l21-s0</name>
+        <bridge name='l21-s0' stp='on' delay='0'/>
+      </network>
+    l21-s1: |
+      <network>
+        <name>l21-s1</name>
+        <bridge name='l21-s1' stp='on' delay='0'/>
       </network>
     # leafs to nodes and ocps
     ## rack0
@@ -297,6 +324,17 @@ cifmw_libvirt_manager_configuration:
       <network>
         <name>l11-ocp2</name>
         <bridge name='l11-ocp2' stp='on' delay='0'/>
+      </network>
+    ## rack2 (arbiter) - ocp only, no EDPM nodes
+    l20-ocp0: |
+      <network>
+        <name>l20-ocp0</name>
+        <bridge name='l20-ocp0' stp='on' delay='0'/>
+      </network>
+    l21-ocp0: |
+      <network>
+        <name>l21-ocp0</name>
+        <bridge name='l21-ocp0' stp='on' delay='0'/>
       </network>
     ocpbm: |
       <network>
@@ -498,9 +536,9 @@ cifmw_libvirt_manager_configuration:
         -  # rack1 - ocp worker 5
           - "l10-ocp2"
           - "l11-ocp2"
-        -  # arbiter zone - ocp worker 6 (quorum voter via rack0 leaf)
-          - "l00-node3"
-          - "l01-node3"
+        -  # rack2 (arbiter) - ocp worker 6 (quorum voter)
+          - "l20-ocp0"
+          - "l21-ocp0"
         -  # router - ocp_tester (worker 7)
           - "rtr-ocp"
     router:
@@ -546,15 +584,19 @@ cifmw_libvirt_manager_configuration:
           - "l01-s0"
           - "l10-s0"
           - "l11-s0"
+          - "l20-s0"
+          - "l21-s0"
           - "s0-rtr"
         -  # spine1
           - "l00-s1"
           - "l01-s1"
           - "l10-s1"
           - "l11-s1"
+          - "l20-s1"
+          - "l21-s1"
           - "s1-rtr"
     leaf:
-      amount: 4
+      amount: 6
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -612,6 +654,14 @@ cifmw_libvirt_manager_configuration:
           - "l11-ocp1"
           - "l11-ocp2"
           - "l11-node3"
+        -  # rack2 (arbiter) - leaf20
+          - "l20-s0"
+          - "l20-s1"
+          - "l20-ocp0"
+        -  # rack2 (arbiter) - leaf21
+          - "l21-s0"
+          - "l21-s1"
+          - "l21-ocp0"
 
 ## devscript support for OCP deploy
 cifmw_devscripts_config_overrides:
