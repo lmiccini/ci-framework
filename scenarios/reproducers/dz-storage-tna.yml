@@ -618,6 +618,10 @@ cifmw_devscripts_config_overrides:
   fips_mode: "{{ cifmw_fips_enabled | default(false) | bool }}"
   cluster_subnet_v4: "192.172.0.0/16"
   network_config_folder: "{{ ansible_user_dir }}/netconf"
+
+# TNA: use patch_tna so num_masters/num_arbiters survive the
+# patch_01_workers_masters override derived from ocp.amount
+cifmw_devscripts_config_overrides_patch_tna:
   num_masters: "2"
   num_arbiters: "1"
 
