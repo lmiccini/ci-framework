@@ -60,7 +60,6 @@ cifmw_libvirt_manager_network_interface_types:
   l10-node1: network
   l10-node2: network
   l10-node3: network
-  l10-node4: network
   l10-ocp0: network
   l10-ocp1: network
   l10-ocp2: network
@@ -68,7 +67,6 @@ cifmw_libvirt_manager_network_interface_types:
   l11-node1: network
   l11-node2: network
   l11-node3: network
-  l11-node4: network
   l11-ocp0: network
   l11-ocp1: network
   l11-ocp2: network
@@ -250,11 +248,6 @@ cifmw_libvirt_manager_configuration:
         <name>l10-node3</name>
         <bridge name='l10-node3' stp='on' delay='0'/>
       </network>
-    l10-node4: |
-      <network>
-        <name>l10-node4</name>
-        <bridge name='l10-node4' stp='on' delay='0'/>
-      </network>
     l10-ocp0: |
       <network>
         <name>l10-ocp0</name>
@@ -289,11 +282,6 @@ cifmw_libvirt_manager_configuration:
       <network>
         <name>l11-node3</name>
         <bridge name='l11-node3' stp='on' delay='0'/>
-      </network>
-    l11-node4: |
-      <network>
-        <name>l11-node4</name>
-        <bridge name='l11-node4' stp='on' delay='0'/>
       </network>
     l11-ocp0: |
       <network>
