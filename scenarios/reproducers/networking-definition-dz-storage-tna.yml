@@ -183,12 +183,6 @@ cifmw_networking_definition:
           length: 5
       networks:
         ctlplaner0: {}
-        internalapi:
-          trunk-parent: ctlplaner0
-        tenant:
-          trunk-parent: ctlplaner0
-        storage:
-          trunk-parent: ctlplaner0
     r1-computes:
       network-template:
         range:
@@ -196,12 +190,6 @@ cifmw_networking_definition:
           length: 5
       networks:
         ctlplaner1: {}
-        internalapi:
-          trunk-parent: ctlplaner1
-        tenant:
-          trunk-parent: ctlplaner1
-        storage:
-          trunk-parent: ctlplaner1
     r0-networkers:
       network-template:
         range:
@@ -209,12 +197,6 @@ cifmw_networking_definition:
           length: 5
       networks:
         ctlplaner0: {}
-        internalapi:
-          trunk-parent: ctlplaner0
-        tenant:
-          trunk-parent: ctlplaner0
-        storage:
-          trunk-parent: ctlplaner0
     r1-networkers:
       network-template:
         range:
@@ -222,12 +204,6 @@ cifmw_networking_definition:
           length: 5
       networks:
         ctlplaner1: {}
-        internalapi:
-          trunk-parent: ctlplaner1
-        tenant:
-          trunk-parent: ctlplaner1
-        storage:
-          trunk-parent: ctlplaner1
     ocps:
       network-template:
         range:
