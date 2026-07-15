@@ -24,7 +24,7 @@ cifmw_use_uefi: >-
   {{ (cifmw_repo_setup_os_release is defined
       and cifmw_repo_setup_os_release == 'rhel') | bool }}
 num_racks: 3
-cifmw_libvirt_manager_compute_amount: "{{ num_racks }}"
+cifmw_libvirt_manager_compute_amount: 2
 cifmw_libvirt_manager_networker_amount: 2
 cifmw_libvirt_manager_pub_net: ocpbm
 cifmw_libvirt_manager_spineleaf_setup: true
@@ -394,7 +394,7 @@ cifmw_libvirt_manager_configuration:
         - ocpbm
         - osp_trunk
     r0-compute: &r0_compute_def
-      amount: 0
+      amount: 2
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
@@ -418,7 +418,7 @@ cifmw_libvirt_manager_configuration:
           - "l00-node1"
           - "l01-node1"
     r1-compute:
-      amount: 0
+      amount: 2
       root_part_id: >-
         {{
           (cifmw_repo_setup_os_release is defined and cifmw_repo_setup_os_release == 'rhel') |
