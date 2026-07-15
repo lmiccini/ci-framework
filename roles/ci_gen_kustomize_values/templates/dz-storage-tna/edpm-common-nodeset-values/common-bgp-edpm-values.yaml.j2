@@ -27,7 +27,7 @@ data:
           - hostname: "{{ cifmw_ci_gen_kustomize_values_ntp_srv | default('pool.ntp.org') }}"
         edpm_sshd_allowed_ranges:
 {% set sshd_allowed_range = cifmw_ci_gen_kustomize_values_sshd_ranges | default([]) %}
-{% for rack in ['r0', 'r1', 'r2'] %}
+{% for rack in ['r0', 'r1'] %}
 {%   set _ = sshd_allowed_range.append(cifmw_networking_env_definition.networks['ctlplane' + rack].network_v4) %}
 {% endfor %}
 {% for range in sshd_allowed_range %}
